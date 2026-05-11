@@ -31,7 +31,10 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+[Evaluate against `.specify/memory/constitution.md`: local-first reproducibility,
+strict architecture boundaries, async inference separation, auditable security
+and RBAC, testable delivery and documentation, technical constraints, startup
+validation, CI coverage, and documented complexity exceptions.]
 
 ## Project Structure
 

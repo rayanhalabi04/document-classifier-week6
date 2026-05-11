@@ -80,6 +80,9 @@
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right functional requirements.
+  Check the project constitution for mandatory constraints around local
+  reproducibility, architecture boundaries, async processing, auditability,
+  security, tests, and documentation.
 -->
 
 ### Functional Requirements

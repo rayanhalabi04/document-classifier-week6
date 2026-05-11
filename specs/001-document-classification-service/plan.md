@@ -21,6 +21,82 @@ Build a local Docker Compose internal document classification service. A scanner
 **Constraints**: API never performs inference; reviewer relabel only when top-1 confidence is below 0.7; originals must be stored before queueing; service layer owns transactions and cache invalidation; repositories own SQL only  
 **Scale/Scope**: Week 6 internal demonstration with local services, representative document batches, authenticated user workflows, auditability, and repeatable onboarding
 
+## AIE Bootcamp Quality Gates
+
+These gates supplement the project constitution and apply before code review,
+merge, and final presentation. They preserve the architecture, API, worker,
+database, cache, Vault, MinIO, SFTP, classifier, and CI plan described below.
+
+### Git and Review Workflow
+
+- Branch names MUST be descriptive and scoped, using the feature prefix where
+  possible, for example `001-document-classification-service-api-auth` or
+  `001-document-classification-service-ingestion-worker`.
+- Direct commits to `main` MUST NOT be allowed. All work MUST enter through pull
+  requests from feature branches.
+- Pull requests MUST use a project PR template with summary, linked task or
+  Trello card, files changed, test evidence, security impact, and screenshots or
+  logs where relevant.
+- Every pull request MUST be reviewed by at least one teammate who does not own
+  the primary workstream. Cross-boundary changes MUST also be reviewed by the
+  owner of the affected workstream.
+- Commits MUST follow Conventional Commits, for example `feat: add batch list
+  contract`, `test: add golden replay coverage`, or `docs: update runbook`.
+
+### Python Style and Static Quality
+
+- Python formatting MUST use `black`.
+- Import ordering MUST use `isort`.
+- Linting MUST use `flake8`.
+- Type checking MUST use `mypy` for application modules and test-support code
+  where practical.
+- CI MUST fail if `black --check`, `isort --check-only`, `flake8`, or `mypy`
+  fails.
+- Python naming MUST follow standard conventions: modules and functions use
+  `snake_case`, classes use `PascalCase`, constants use `UPPER_SNAKE_CASE`, and
+  private helpers use a leading underscore only when they are truly internal.
+- Public modules, classes, and non-trivial functions SHOULD include Google-style
+  docstrings that explain purpose, arguments, returns, raises, and side effects.
+
+### Repository Hygiene
+
+- `.gitignore` MUST exclude local virtual environments, caches, logs, `.env`
+  files, local database or object-store data, generated coverage files, and IDE
+  metadata.
+- `.dockerignore` MUST exclude Git metadata, local caches, test artifacts,
+  virtual environments, local secrets, and files not needed to build runtime
+  images.
+- Dependencies MUST be pinned or locked so local Docker Compose and CI runs are
+  reproducible.
+- Dependency audit MUST run in CI or be documented as a required release check.
+- README and CONTRIBUTING documentation MUST explain local setup, branch naming,
+  Conventional Commits, PR expectations, test commands, and team workflow.
+
+### Security and Error Handling
+
+- Secrets MUST NOT be committed. `.env` files, Vault bootstrap secrets, tokens,
+  MinIO credentials, JWT secrets, and SFTP credentials MUST stay out of Git.
+- Secret scanning MUST run in CI or be documented as a required review gate.
+- Error handling MUST be explicit and safe. Bare `except` blocks are prohibited;
+  caught exceptions MUST be specific or re-raised with contextual information.
+- User-facing errors MUST avoid leaking credentials, stack traces, file-system
+  paths, model internals, or infrastructure secrets.
+- Structured logs MUST include request IDs for API paths and job IDs for worker
+  paths. Logs SHOULD include batch IDs, document IDs, prediction IDs, and actor
+  user IDs when available and safe.
+
+### Testing Standards
+
+- Tests MUST use Arrange-Act-Assert structure where practical.
+- New or changed behavior MUST include tests at the lowest useful level and at
+  the integration or contract level when service boundaries are involved.
+- Coverage expectations: domain, service, repository, API contract, worker, and
+  classifier paths MUST have meaningful coverage for happy paths, permission
+  denials, failure states, and edge cases from the specification.
+- Golden-set tests MUST be part of CI for classifier loading, preprocessing,
+  label mapping, and expected fixture outputs.
+- Pull requests MUST include the test commands run and the result summary.
+
 ## Folder Structure
 
 ```text
@@ -93,6 +169,10 @@ tests/
 └── golden/
 
 .github/workflows/ci.yml
+.gitignore
+.dockerignore
+README.md
+CONTRIBUTING.md
 docker-compose.yml
 classifier.pt
 model_card.json
@@ -276,19 +356,50 @@ Golden tests:
 - preprocessing and label mapping produce expected classes for fixtures
 - CI reports deterministic pass/fail output
 
+Quality-gate tests and checks:
+
+- `black --check` validates formatting
+- `isort --check-only` validates import ordering
+- `flake8` validates lint rules, including no bare `except` policy where
+  configured
+- `mypy` validates type annotations for application modules
+- architecture-boundary tests validate imports across `app/api`, `app/services`,
+  `app/repositories`, `app/domain`, `app/infra`, `app/db`, and `app/classifier`
+- secret scanning validates no credentials or local `.env` content are committed
+- dependency audit validates pinned dependencies do not contain known critical
+  vulnerabilities before merge or release
+
 ## CI Stages
 
 GitHub Actions workflow stages:
 
-1. **Lint and format check**: ruff or equivalent linting, import ordering, formatting check.
-2. **Type and static checks**: run type checks where configured and validate no forbidden imports violate architecture ownership.
-3. **Unit tests**: run fast tests without Docker services.
-4. **Database migration check**: start Postgres 16 service, run Alembic upgrade, verify metadata tables.
-5. **Contract tests**: validate OpenAPI generation and endpoint authorization matrix.
-6. **Integration tests**: start Redis 7, Postgres 16, MinIO, Vault dev mode, and Atmoz SFTP services for worker/API integration tests.
-7. **Golden-set replay**: run classifier fixture replay with ConvNeXt Tiny or Small assets.
-8. **Docker Compose smoke test**: build images, start stack, call `/health/live` and `/health/ready`.
-9. **Documentation check**: verify `ARCH.md`, `DECISIONS.md`, `RUNBOOK.md`, `SECURITY.md`, and `COLLABORATION.md` exist and mention required local workflows.
+1. **Branch and PR metadata check**: validate branch naming, reject direct
+   commits to `main`, and require the PR template fields before review.
+2. **Conventional Commit check**: validate commit messages or PR squash title
+   against Conventional Commits.
+3. **Format and import check**: run `black --check` and `isort --check-only`.
+4. **Lint check**: run `flake8`, including rules for unused imports, complexity
+   where configured, and no bare `except`.
+5. **Type check**: run `mypy` for application modules and practical test-support
+   modules.
+6. **Secret scan**: scan committed files for credentials, tokens, private keys,
+   `.env` content, and local service secrets.
+7. **Dependency audit**: validate pinned or locked dependencies and fail on
+   critical known vulnerabilities unless explicitly documented and accepted.
+8. **Unit tests**: run fast tests without Docker services.
+9. **Database migration check**: start Postgres 16 service, run Alembic upgrade,
+   verify metadata tables.
+10. **Contract tests**: validate OpenAPI generation and endpoint authorization
+    matrix.
+11. **Integration tests**: start Redis 7, Postgres 16, MinIO, Vault dev mode,
+    and Atmoz SFTP services for worker/API integration tests.
+12. **Golden-set replay**: run classifier fixture replay with ConvNeXt Tiny or
+    Small assets.
+13. **Docker Compose smoke test**: build images, start stack, call
+    `/health/live` and `/health/ready`.
+14. **Documentation check**: verify `README.md`, `CONTRIBUTING.md`, `ARCH.md`,
+    `DECISIONS.md`, `RUNBOOK.md`, `SECURITY.md`, and `COLLABORATION.md` exist
+    and mention required local workflows.
 
 ## Docker Compose Services
 
@@ -334,8 +445,11 @@ Shared cards:
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-The project constitution file currently contains placeholder principles and no enforceable project-specific gates. This plan applies the explicit gates from the feature specification:
+This plan applies the ratified v1.0.0 constitution and AIE Bootcamp quality
+gates:
 
+- PASS: Local Docker Compose operation includes API, ingestion worker, inference
+  worker, Postgres, Redis, MinIO, Vault dev mode, and SFTP simulation.
 - PASS: API layer remains HTTP-router only and does not perform inference.
 - PASS: Business logic, transactions, and cache invalidation are owned by services.
 - PASS: Repositories own SQL access only.
@@ -345,9 +459,19 @@ The project constitution file currently contains placeholder principles and no e
 - PASS: Classifier loading, validation, preprocessing, inference, and golden-set replay stay in `app/classifier`.
 - PASS: Persistent data has Alembic migration coverage.
 - PASS: Authentication, authorization, audit logging, and role-based access are first-class requirements.
-- PASS: Local Docker Compose operation and documentation deliverables are required outcomes.
+- PASS: CI plan includes formatting, import ordering, linting, typing, tests,
+  migrations, contracts, integration, golden replay, Docker Compose smoke checks,
+  secret scanning, dependency audit, and documentation checks.
+- PASS: Git workflow gates require branch naming, no direct commits to `main`,
+  PR review, PR template, and Conventional Commits.
+- PASS: Python quality gates require `black`, `isort`, `flake8`, `mypy`,
+  naming conventions, Google-style docstrings, safe error handling, structured
+  logging, test coverage expectations, and Arrange-Act-Assert style.
+- PASS: Repository hygiene requires `.gitignore`, `.dockerignore`, pinned
+  dependencies, README, and CONTRIBUTING guidance.
 
-Post-design check: PASS. The plan, data model, contract, and quickstart preserve the same boundaries and do not introduce conflicting components.
+Post-design check: PASS. The plan, data model, contract, quickstart, and task
+strategy preserve the same architecture while adding explicit quality gates.
 
 ## Complexity Tracking
 

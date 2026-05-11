@@ -11,6 +11,8 @@ description: "Task list template for feature implementation"
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+Tasks must also reflect constitution gates: local reproducibility, architecture
+boundaries, async worker separation, auditable RBAC, tests, CI, and documentation.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -60,7 +62,9 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+Examples of foundational tasks (adjust based on your project). Include
+constitution compliance checks for architecture boundaries, startup validation,
+CI gates, auditability, and documentation when applicable:
 
 - [ ] T004 Setup database schema and migrations framework
 - [ ] T005 [P] Implement authentication/authorization framework

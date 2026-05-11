@@ -297,10 +297,73 @@
   - **Files likely affected**: `COLLABORATION.md`
   - **Acceptance criteria**: Checkpoints exist for schema freeze, API contract freeze, worker end-to-end demo, review/admin/auditor demo, and final presentation readiness.
 
+## Repository Standards and Quality Gates
+
+- [ ] T054 [P] Define CONTRIBUTING workflow for branches, commits, and pull requests
+  - **Owner suggestion**: Member 1
+  - **Files likely affected**: `CONTRIBUTING.md`, `README.md`, `COLLABORATION.md`
+  - **Acceptance criteria**: Documentation defines branch naming, no direct commits to `main`, Conventional Commits, PR review rules, required test evidence, and Trello card linkage.
+
+- [ ] T055 [P] Add GitHub pull request template requirements
+  - **Owner suggestion**: Member 1
+  - **Files likely affected**: `.github/pull_request_template.md`, `CONTRIBUTING.md`
+  - **Acceptance criteria**: Template includes summary, linked task/Trello card, files changed, test evidence, security impact, documentation impact, screenshots/logs when relevant, and reviewer checklist.
+
+- [ ] T056 [P] Configure black, isort, flake8, and mypy quality tools
+  - **Owner suggestion**: Member 4
+  - **Files likely affected**: `pyproject.toml`, `.flake8`, `mypy.ini`, `.github/workflows/ci.yml`
+  - **Acceptance criteria**: Tool configuration is documented and CI can run `black --check`, `isort --check-only`, `flake8`, and `mypy` as separate failing gates.
+
+- [ ] T057 [P] Document Python naming and Google-style docstring standards
+  - **Owner suggestion**: Member 2
+  - **Files likely affected**: `CONTRIBUTING.md`, `README.md`
+  - **Acceptance criteria**: Standards cover `snake_case` modules/functions, `PascalCase` classes, `UPPER_SNAKE_CASE` constants, private helper naming, and Google-style docstrings for public modules/classes/functions.
+
+- [ ] T058 [P] Define repository ignore files
+  - **Owner suggestion**: Member 3
+  - **Files likely affected**: `.gitignore`, `.dockerignore`, `CONTRIBUTING.md`
+  - **Acceptance criteria**: Ignore rules exclude virtual environments, caches, logs, local `.env` files, local service data, generated coverage artifacts, IDE metadata, Git metadata from Docker builds, and local secrets.
+
+- [ ] T059 [P] Add secret scanning gate with gitleaks or equivalent
+  - **Owner suggestion**: Member 4
+  - **Files likely affected**: `.github/workflows/ci.yml`, `.gitleaks.toml`, `SECURITY.md`, `CONTRIBUTING.md`
+  - **Acceptance criteria**: CI or documented pre-merge checks scan for committed credentials, tokens, private keys, `.env` content, JWT secrets, MinIO credentials, Vault tokens, and SFTP credentials.
+
+- [ ] T060 Define safe error-handling foundation
+  - **Owner suggestion**: Member 2
+  - **Files likely affected**: `app/domain/errors.py`, `app/services/startup_validation.py`, `app/api/health.py`, `CONTRIBUTING.md`, `tests/unit/test_error_handling.py`
+  - **Acceptance criteria**: Plan defines typed domain/application errors, no bare `except`, safe user-facing messages, no leaked secrets or stack traces, and test coverage for representative failure paths.
+
+- [ ] T061 Define structured logging foundation
+  - **Owner suggestion**: Member 2
+  - **Files likely affected**: `app/infra/logging.py`, `app/main.py`, `app/workers/ingestion_worker.py`, `app/workers/inference_worker.py`, `tests/unit/test_logging_context.py`
+  - **Acceptance criteria**: Logging plan includes request IDs for API requests, job IDs for worker jobs, safe contextual IDs such as batch/document/prediction/user IDs, and no sensitive values in logs.
+
+- [ ] T062 [P] Configure pytest coverage with 80% target
+  - **Owner suggestion**: Member 4
+  - **Files likely affected**: `pyproject.toml`, `.coveragerc`, `.github/workflows/ci.yml`, `CONTRIBUTING.md`
+  - **Acceptance criteria**: Test configuration records coverage for `app/`, sets an 80% minimum target, and documents coverage expectations for domain, service, repository, API contract, worker, and classifier paths.
+
+- [ ] T063 [P] Define dependency pinning and dependency audit gate
+  - **Owner suggestion**: Member 4
+  - **Files likely affected**: `pyproject.toml`, dependency lock file, `.github/workflows/ci.yml`, `SECURITY.md`
+  - **Acceptance criteria**: Dependencies are pinned or locked, local and CI installs are reproducible, and CI or release checklist runs a dependency audit that fails on critical vulnerabilities unless explicitly accepted.
+
+- [ ] T064 [P] Define pre-commit quality pipeline
+  - **Owner suggestion**: Member 4
+  - **Files likely affected**: `.pre-commit-config.yaml`, `CONTRIBUTING.md`, `README.md`
+  - **Acceptance criteria**: Pre-commit plan runs formatting, import sorting, linting, type checks where practical, secret scanning, trailing whitespace checks, and YAML/Markdown hygiene checks before commit.
+
+- [ ] T065 [P] Add documentation checklist for repository readiness
+  - **Owner suggestion**: Member 1
+  - **Files likely affected**: `README.md`, `CONTRIBUTING.md`, `ARCH.md`, `DECISIONS.md`, `RUNBOOK.md`, `SECURITY.md`, `COLLABORATION.md`
+  - **Acceptance criteria**: Checklist verifies required docs exist and cover local setup, project architecture, coding standards, PR workflow, security expectations, runbook commands, decisions, collaboration, and demo/presentation notes.
+
 ## Dependency Notes
 
 - Database schema, settings, and Docker Compose planning unblock most other streams.
 - API/Auth/Permissions can progress with mocked repositories once table contracts are stable.
 - Classifier validation and golden-set work can progress before worker orchestration.
 - SFTP ingestion, MinIO storage, Redis queue, and inference worker converge in the end-to-end worker flow.
+- Repository standards and quality gates can start immediately after planning and should be in place before feature implementation PRs.
 - Documentation and Trello setup can run in parallel but must be updated after final integration decisions.
