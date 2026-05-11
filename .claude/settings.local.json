@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s /b \"C:\\\\Users\\\\ahmad\\\\OneDrive\\\\Desktop\\\\AIE bootcamp\\\\week6_project\\\\DOCUMENT_CLASSIFIER\\\\document-classifier-week6\")",
+      "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\ahmad\\\\OneDrive\\\\Desktop\\\\AIE bootcamp\\\\week6_project\\\\DOCUMENT_CLASSIFIER\\\\document-classifier-week6\" | ForEach-Object { $_.FullName })"
+    ]
+  }
+}
