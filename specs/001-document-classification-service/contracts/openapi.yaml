@@ -1,0 +1,432 @@
+openapi: 3.1.0
+info:
+  title: Internal Document Classification Service API
+  version: 0.1.0
+  description: Authenticated API contract for batch listing, prediction review, audit access, and role management. Inference is performed only by workers and is not exposed as an API operation.
+servers:
+  - url: http://localhost:8000
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+  - name: batches
+  - name: predictions
+  - name: audit
+  - name: roles
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Sign in an internal user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '204':
+          description: Signed in and JWT returned by fastapi-users flow
+        '401':
+          description: Invalid credentials
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Sign out current user
+      responses:
+        '204':
+          description: Signed out
+  /users/invitations:
+    post:
+      tags: [roles]
+      summary: Invite a user
+      description: Admin only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteUserRequest'
+      responses:
+        '201':
+          description: Invitation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Admin role required
+  /users/{user_id}/roles:
+    put:
+      tags: [roles]
+      summary: Replace active roles for a user
+      description: Admin only.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRolesRequest'
+      responses:
+        '200':
+          description: Roles updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Admin role required
+  /batches:
+    get:
+      tags: [batches]
+      summary: List document batches
+      description: Admin, reviewer, and auditor access.
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Batch list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchList'
+  /batches/{batch_id}:
+    get:
+      tags: [batches]
+      summary: Get batch detail
+      description: Admin, reviewer, and auditor access.
+      parameters:
+        - $ref: '#/components/parameters/BatchId'
+      responses:
+        '200':
+          description: Batch detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchDetail'
+        '404':
+          description: Batch not found
+  /predictions/{prediction_id}:
+    get:
+      tags: [predictions]
+      summary: Get prediction detail
+      description: Admin, reviewer, and auditor access.
+      parameters:
+        - $ref: '#/components/parameters/PredictionId'
+      responses:
+        '200':
+          description: Prediction detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prediction'
+        '404':
+          description: Prediction not found
+  /predictions/{prediction_id}/review:
+    post:
+      tags: [predictions]
+      summary: Relabel a low-confidence prediction
+      description: Reviewer only; allowed only when top-1 confidence is below 0.7.
+      parameters:
+        - $ref: '#/components/parameters/PredictionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPredictionRequest'
+      responses:
+        '200':
+          description: Review label saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prediction'
+        '403':
+          description: Reviewer role required
+        '409':
+          description: Prediction is not review eligible
+  /audit-events:
+    get:
+      tags: [audit]
+      summary: List audit events
+      description: Admin and auditor access.
+      parameters:
+        - name: actor_user_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: target_type
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Audit events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEventList'
+        '403':
+          description: Admin or auditor role required
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BatchId:
+      name: batch_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PredictionId:
+      name: prediction_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    InviteUserRequest:
+      type: object
+      required: [email, roles]
+      properties:
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    SetRolesRequest:
+      type: object
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    ReviewPredictionRequest:
+      type: object
+      required: [label]
+      properties:
+        label:
+          $ref: '#/components/schemas/RvlCdipClass'
+        note:
+          type: string
+          maxLength: 1000
+    Role:
+      type: string
+      enum: [admin, reviewer, auditor]
+    RvlCdipClass:
+      type: string
+      enum:
+        - letter
+        - form
+        - email
+        - handwritten
+        - advertisement
+        - scientific_report
+        - scientific_publication
+        - specification
+        - file_folder
+        - news_article
+        - budget
+        - invoice
+        - presentation
+        - questionnaire
+        - resume
+        - memo
+    User:
+      type: object
+      required: [id, email, roles, is_active]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        is_active:
+          type: boolean
+    BatchList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchSummary'
+        total:
+          type: integer
+    BatchSummary:
+      type: object
+      required: [id, status, document_count, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        document_count:
+          type: integer
+        reviewable_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+    BatchDetail:
+      allOf:
+        - $ref: '#/components/schemas/BatchSummary'
+        - type: object
+          required: [documents]
+          properties:
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/DocumentSummary'
+    DocumentSummary:
+      type: object
+      required: [id, source_filename, ingestion_status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        source_filename:
+          type: string
+        ingestion_status:
+          type: string
+        prediction:
+          $ref: '#/components/schemas/Prediction'
+    Prediction:
+      type: object
+      required: [id, document_id, predicted_class, top1_confidence, review_eligible, model_version, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+        predicted_class:
+          $ref: '#/components/schemas/RvlCdipClass'
+        top1_confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        class_scores:
+          type: object
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+        review_eligible:
+          type: boolean
+        review_label:
+          $ref: '#/components/schemas/RvlCdipClass'
+        overlay_url:
+          type: string
+          format: uri
+        model_version:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    AuditEventList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+        total:
+          type: integer
+    AuditEvent:
+      type: object
+      required: [id, action, target_type, outcome, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        actor_user_id:
+          type: string
+          format: uuid
+        action:
+          type: string
+        target_type:
+          type: string
+        target_id:
+          type: string
+        outcome:
+          type: string
+          enum: [allowed, denied, succeeded, failed]
+        details:
+          type: object
+        created_at:
+          type: string
+          format: date-time
