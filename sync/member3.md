@@ -54,20 +54,26 @@
 
 ## Remaining
 
-| Task | What | Waiting on |
-|------|------|------------|
-| **T025** | Stable-file detection (`app/services/ingestion.py`) | Member 2 — T019 (ingestion service skeleton) |
-| **T026** | Duplicate/invalid-file handling (`app/services/ingestion.py`, `app/repositories/documents.py`) | Member 2 — T017, T019 |
-| **T027** | Ingestion worker loop (`app/workers/ingestion_worker.py`) | T025 + T026 + T036 complete |
-| **T036** | Original TIFF storage in MinIO (infra part done, service wiring pending) | Member 2 — T019 |
-| **T039** | Vault bootstrap docs (`docker-compose.yml` done, `RUNBOOK.md`/`SECURITY.md` pending) | System end-to-end working |
-| **T047** | Runbook (`RUNBOOK.md`) | System end-to-end working |
-| **T049** | Presentation/demo checklist | System end-to-end working |
+| Task | What | Status |
+|------|------|--------|
+| **T025** | Stable-file detection (`app/services/ingestion.py`) | ⬜ Ready to start — Member 2's T019 done |
+| **T026** | Duplicate/invalid-file handling (`app/services/ingestion.py`, `app/repositories/documents.py`) | ⬜ Ready to start — Member 2's T017+T019 done |
+| **T027** | Ingestion worker loop (`app/workers/ingestion_worker.py`) | ⬜ Needs T025+T026+T036 first |
+| **T036** | Original TIFF storage in MinIO (infra part done, service wiring pending) | ⬜ Ready to start — Member 2's T019 done |
+| **T039** | Vault bootstrap docs (`docker-compose.yml` done, `RUNBOOK.md`/`SECURITY.md` pending) | ⬜ System end-to-end needed |
+| **T047** | Runbook (`RUNBOOK.md`) | ⬜ System end-to-end needed |
+| **T049** | Presentation/demo checklist | ⬜ System end-to-end needed |
 
 ---
 
-## Blocked by
+## Unblocked — Member 2 finished all blockers
 
-- **Member 2** — owns `app/services/ingestion.py` (T019), `app/repositories/documents.py` (T017), `startup_validation.py` (T023)
-- All 4 remaining implementation tasks (T025-T027, T036) touch Member 2's files
-- Documentation tasks (T039, T047, T049) need full system working
+| What we needed | File | Status |
+|---------------|------|--------|
+| Ingestion service (T019) | `app/services/ingestion.py` | Ready — `ingest_file()`, `mark_failed()` |
+| Document repository (T017) | `app/repositories/documents.py` | Ready — `create()`, `find_active_duplicate()` |
+| Startup validation (T023) | `app/services/startup_validation.py` | Ready — calls our Vault/MinIO checks |
+| DB session | `app/db/session.py` | Ready — `SessionFactory()` |
+| Domain errors | `app/domain/errors.py` | Ready — `DuplicateDocumentError`, `UnsupportedFileTypeError` |
+| ORM models | `app/db/models.py` | Ready — all 10 tables with ENUMs |
+| Alembic migration | `alembic/versions/001_initial_schema.py` | Ready — `alembic upgrade head` works |
