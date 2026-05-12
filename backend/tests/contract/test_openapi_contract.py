@@ -1,8 +1,14 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app, create_app
 
 client = TestClient(app)
+
+
+def test_create_app_imports_successfully() -> None:
+    created_app = create_app()
+
+    assert created_app.title == "Document Classifier API"
 
 
 def test_openapi_schema_is_available() -> None:
@@ -31,7 +37,9 @@ def test_expected_route_prefixes_exist() -> None:
     ]
 
     for prefix in expected_prefixes:
-        assert any(path.startswith(prefix) for path in paths), f"Missing route prefix: {prefix}"
+        assert any(
+            path.startswith(prefix) for path in paths
+        ), f"Missing route prefix: {prefix}"
 
 
 def test_health_endpoints_exist_and_work() -> None:
