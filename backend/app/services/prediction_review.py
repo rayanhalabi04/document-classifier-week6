@@ -105,9 +105,7 @@ class PredictionReviewService:
 
         normalized = review_label.strip().lower()
         if normalized not in RVL_CDIP_CLASSES:
-            raise InvalidReviewLabel(
-                f"'{review_label}' is not a valid RVL-CDIP class."
-            )
+            raise InvalidReviewLabel(f"'{review_label}' is not a valid RVL-CDIP class.")
 
         prediction.review_label = normalized
         prediction.reviewed_by_user_id = reviewer_user_id
@@ -138,7 +136,8 @@ class PredictionReviewService:
             invalidate_after_relabel(cache_batch_id, prediction_id)
         except Exception:
             logger.warning(
-                "Cache invalidation failed after relabel of prediction %s", prediction_id
+                "Cache invalidation failed after relabel of prediction %s",
+                prediction_id,
             )
 
         return prediction

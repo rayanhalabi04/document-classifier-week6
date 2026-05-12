@@ -37,7 +37,9 @@ def test_expected_route_prefixes_exist() -> None:
     ]
 
     for prefix in expected_prefixes:
-        assert any(path.startswith(prefix) for path in paths), f"Missing route prefix: {prefix}"
+        assert any(
+            path.startswith(prefix) for path in paths
+        ), f"Missing route prefix: {prefix}"
 
 
 def test_health_endpoints_exist_and_work() -> None:

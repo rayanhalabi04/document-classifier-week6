@@ -18,7 +18,6 @@ from app.domain.errors import (
 from app.main import app
 from app.services.auth import current_active_user
 
-
 PREDICTION_ID = uuid.UUID("33333333-3333-3333-3333-333333333333")
 REVIEWER_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
