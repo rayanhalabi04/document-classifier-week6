@@ -1,1 +1,39 @@
-﻿
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Testing artifacts
+tests/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Local environment
+.env
+.env.*
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation and planning (not needed for runtime)
+plan/
+docs/
+
+# CI/CD
+.github/
+
+# Logs
+*.log
+
+# Docker volumes
+docker-data/

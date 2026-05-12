@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """Structured logging configuration.
 
 Sets up structlog with JSON output for production and pretty console output
@@ -113,3 +114,6 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
         logger.info("document.ingested", document_id=str(doc.id))
     """
     return structlog.get_logger(name)
+=======
+
+>>>>>>> upstream/main
