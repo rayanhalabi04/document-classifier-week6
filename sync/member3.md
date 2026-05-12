@@ -61,8 +61,29 @@
 - `Dockerfile` — libgl1+libtiff6 for Debian Trixie, uv pip install, CPU-only torch
 - `pyproject.toml` — torch==2.3.0+cpu, torchvision==0.18.0+cpu, fix build-backend
 - `docker-compose.yml` — vault healthcheck `-address=http://127.0.0.1:8200`
-- `alembic/versions/001_initial_schema.py` — fix duplicate Postgres ENUM creation
+- `alembic/versions/001_initial_schema.py` — fix duplicate Postgres ENUM creation (details below)
 - `.env.example` — resolve conflict markers, add DATABASE_URL, fix SFTP_DROP_DIR=drop
+
+#### Alembic migration fix details
+
+**Problem:** `alembic upgrade head` failed with `type "batchstatus" already exists`
+on a fresh Postgres database. The migration (`001_initial_schema.py`) defined
+standalone `sa.Enum()` variables (lines 22-33) AND inline `sa.Enum()` calls
+inside `op.create_table()` (lines 115, 157, 200). Both registered `before_create`
+DDL events. The standalone `.create()` at line 34 created the type successfully,
+then `op.create_table()` at line 109 fired a second `before_create` event that
+tried to `CREATE TYPE` again — duplicate object error.
+
+**Fix:** Replaced the three inline `sa.Enum(...)` calls inside `op.create_table()`
+with direct references to the standalone enum variables (`batchstatus`,
+`ingestionstatus`, `jobstatus`). This ensures only one `before_create` event
+handler exists per enum type, and the standalone `.create(op.get_bind())` calls
+remain the authoritative type creators. Also added `checkfirst=True` to those
+calls as a safety net.
+
+**Member 2 note:** This is your file. Review this change — no data impact,
+purely a DDL ordering fix. The migration now runs cleanly: `alembic upgrade head`
+creates all 10 tables without errors.
 
 ### Extras
 - `scripts/seed_vault.py` — seeds all 5 Vault paths, verifies them
