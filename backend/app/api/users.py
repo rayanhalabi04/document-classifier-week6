@@ -1,1 +1,19 @@
-﻿
+﻿from fastapi import APIRouter, HTTPException, status
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("")
+async def list_users() -> None:
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="User listing is not implemented yet.",
+    )
+
+
+@router.post("/invite")
+async def invite_user() -> None:
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="User invitation is not implemented yet.",
+    )
