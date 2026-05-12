@@ -61,7 +61,7 @@ class PredictionReviewService:
         prediction_id: uuid.UUID,
         review_label: str,
         reviewer_user_id: uuid.UUID,
-        batch_id: uuid.UUID,
+        batch_id: uuid.UUID | None = None,
         request_id: str | None = None,
     ) -> Prediction:
         """Apply a reviewer label to an eligible prediction.
@@ -70,7 +70,8 @@ class PredictionReviewService:
             prediction_id: The prediction to relabel.
             review_label: The reviewer's chosen RVL-CDIP class.
             reviewer_user_id: User performing the relabel (for audit + record).
-            batch_id: Parent batch (used for cache invalidation).
+            batch_id: Parent batch (used for cache invalidation). If omitted,
+                it is derived from the prediction's document.
             request_id: API request ID for audit traceability.
 
         Returns:
@@ -127,10 +128,14 @@ class PredictionReviewService:
             request_id=request_id,
         )
 
+        cache_batch_id = batch_id
+        if cache_batch_id is None:
+            cache_batch_id = prediction.document.batch_id
+
         self._session.commit()
 
         try:
-            invalidate_after_relabel(batch_id, prediction_id)
+            invalidate_after_relabel(cache_batch_id, prediction_id)
         except Exception:
             logger.warning(
                 "Cache invalidation failed after relabel of prediction %s", prediction_id
