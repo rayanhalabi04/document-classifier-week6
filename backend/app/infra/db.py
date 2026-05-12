@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """FastAPI database session dependency.
 
 Routes declare `session: Session = Depends(get_session)` to receive a
@@ -27,6 +26,3 @@ def get_session() -> Generator[Session, None, None]:
         raise
     finally:
         session.close()
-=======
-
->>>>>>> upstream/main
