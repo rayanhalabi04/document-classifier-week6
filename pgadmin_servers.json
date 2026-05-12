@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Document Classifier DB",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "document_classifier",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    }
+  }
+}
