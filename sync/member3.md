@@ -39,16 +39,44 @@
 - Typed errors: MinIOConnectionError, MinIOPermissionError, MinIOBucketError, MinIOFileNotFoundError
 - 14 unit tests passing
 
+### T025 — Stable-file detection
+- `app/workers/ingestion_worker.py` — `_detect_stable_files()` compares size+mtime across polls
+
+### T026 — Duplicate and invalid-file handling
+- `app/workers/ingestion_worker.py` — `_process_file()` handles TIFF validation, duplicates, storage failures
+
+### T027 — Ingestion worker loop
+- `app/workers/ingestion_worker.py` — `main()` with startup checks, poll cycle, per-file resilience
+
+### T036 — Original TIFF storage in MinIO
+- `app/infra/minio.py` — `upload_original()`, `ensure_buckets()`, `check_originals_writable()` module-level injection points
+- `app/infra/sftp.py` — `check_connection()` startup check
+- `app/infra/vault.py` — `validate_required_secrets()` module-level wrapper
+
+### Injection points for other members
+- `app/infra/queue.py` — `enqueue_classification_job()`, `check_queue_health()` (temp for M4)
+- `app/infra/redis.py` — `get_redis_client()` (temp for M4)
+
+### Bugfixes
+- `Dockerfile` — libgl1+libtiff6 for Debian Trixie, uv pip install, CPU-only torch
+- `pyproject.toml` — torch==2.3.0+cpu, torchvision==0.18.0+cpu, fix build-backend
+- `docker-compose.yml` — vault healthcheck `-address=http://127.0.0.1:8200`
+- `alembic/versions/001_initial_schema.py` — fix duplicate Postgres ENUM creation
+- `.env.example` — resolve conflict markers, add DATABASE_URL, fix SFTP_DROP_DIR=drop
+
 ### Extras
 - `scripts/seed_vault.py` — seeds all 5 Vault paths, verifies them
-- `Makefile` — 12 targets: setup, up, down, test, test-live, test-all, reset, clean, seed, ps, logs, shell
-- `tests/integration/test_adapters_live.py` — 3 live tests against real Docker services (all pass)
+- `Makefile` — 12 targets
+- `tests/integration/test_adapters_live.py` — 3 live tests against real Docker services
 - pgAdmin at `localhost:5050` with pre-configured server
+- `sync/member3.md` — this file
 
-### Test totals
-- 42 unit tests (all pass)
-- 3 live integration tests (all pass)
-- 27 Member 1's tests also pass alongside ours (72 total green)
+### End-to-end verified
+```
+SFTP drop → stable-file detection → TIFF validation → MinIO upload
+→ Postgres document record → RQ job enqueued → classification_jobs created
+```
+Tested with golden-set TIFF (135KB). All startup checks pass. API healthy on :8000.
 
 ---
 
@@ -56,15 +84,16 @@
 
 | Task | What | Status |
 |------|------|--------|
-| **T025** | Stable-file detection (`app/workers/ingestion_worker.py`) | ✅ Done — `_detect_stable_files()` |
-| **T026** | Duplicate/invalid-file handling (`app/workers/ingestion_worker.py`) | ✅ Done — `_process_file()` handles all edge cases |
-| **T027** | Ingestion worker loop (`app/workers/ingestion_worker.py`) | ✅ Done — `main()` with poll cycle + startup checks |
-| **T036** | Original TIFF storage in MinIO | ✅ Done — `upload_original()` wrapper + startup injection points |
-| **T039** | Vault bootstrap docs | ⬜ System end-to-end needed |
-| **T047** | Runbook (`RUNBOOK.md`) | ⬜ System end-to-end needed |
-| **T049** | Presentation/demo checklist | ⬜ System end-to-end needed |
+| **T039** | Vault bootstrap docs | ⬜ Needs full system |
+| **T047** | Runbook (`RUNBOOK.md`) | ⬜ Needs full system |
+| **T049** | Presentation/demo checklist | ⬜ Needs full system |
 
-**72 tests passing** (42 M3 unit + 23 M1 permissions + 4 contract + 3 live integration)
+---
+
+## Blocked by
+
+- **Member 4** — needs to implement inference worker (T028-T030) + classifier (T001-T006) to complete end-to-end flow
+- Documentation tasks blocked on M4's work
 
 ---
 
