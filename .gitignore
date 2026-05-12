@@ -44,3 +44,7 @@ sftp_drop/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local / scratch files
+jira_import.csv
+*.ipynb

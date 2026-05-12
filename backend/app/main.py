@@ -12,6 +12,7 @@ from app.api import (
     roles,
     users,
 )
+from app.infra.cache import init_cache
 from app.services.auth import load_jwt_secret
 from app.db.session import SessionFactory
 from app.services.startup_authorization import validate_authorization_startup
@@ -22,6 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     load_jwt_secret()
     with SessionFactory() as session:
         validate_authorization_startup(session)
+    await init_cache()
     yield
 
 
