@@ -274,3 +274,20 @@ class SFTPAdapter:
         """Check if a stat mode represents a regular file."""
         import stat
         return stat.S_ISREG(mode)
+
+
+def check_connection() -> None:
+    """Verify SFTP connection and drop directory readability.
+
+    Module-level function called by ingestion worker startup validation.
+    Connects, lists the drop directory, and confirms it is accessible.
+    """
+    import os
+    host = os.environ.get("SFTP_HOST", "sftp")
+    port = int(os.environ.get("SFTP_PORT", "22"))
+    user = os.environ.get("SFTP_USER", "vendor")
+    password = os.environ.get("SFTP_PASSWORD", "vendorpass")
+    drop_dir = os.environ.get("SFTP_DROP_DIR", "drop")
+
+    with SFTPAdapter(host, port, user, password) as sftp:
+        sftp.list_files(drop_dir)

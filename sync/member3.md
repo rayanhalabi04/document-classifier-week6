@@ -56,13 +56,15 @@
 
 | Task | What | Status |
 |------|------|--------|
-| **T025** | Stable-file detection (`app/services/ingestion.py`) | ⬜ Ready to start — Member 2's T019 done |
-| **T026** | Duplicate/invalid-file handling (`app/services/ingestion.py`, `app/repositories/documents.py`) | ⬜ Ready to start — Member 2's T017+T019 done |
-| **T027** | Ingestion worker loop (`app/workers/ingestion_worker.py`) | ⬜ Needs T025+T026+T036 first |
-| **T036** | Original TIFF storage in MinIO (infra part done, service wiring pending) | ⬜ Ready to start — Member 2's T019 done |
-| **T039** | Vault bootstrap docs (`docker-compose.yml` done, `RUNBOOK.md`/`SECURITY.md` pending) | ⬜ System end-to-end needed |
+| **T025** | Stable-file detection (`app/workers/ingestion_worker.py`) | ✅ Done — `_detect_stable_files()` |
+| **T026** | Duplicate/invalid-file handling (`app/workers/ingestion_worker.py`) | ✅ Done — `_process_file()` handles all edge cases |
+| **T027** | Ingestion worker loop (`app/workers/ingestion_worker.py`) | ✅ Done — `main()` with poll cycle + startup checks |
+| **T036** | Original TIFF storage in MinIO | ✅ Done — `upload_original()` wrapper + startup injection points |
+| **T039** | Vault bootstrap docs | ⬜ System end-to-end needed |
 | **T047** | Runbook (`RUNBOOK.md`) | ⬜ System end-to-end needed |
 | **T049** | Presentation/demo checklist | ⬜ System end-to-end needed |
+
+**72 tests passing** (42 M3 unit + 23 M1 permissions + 4 contract + 3 live integration)
 
 ---
 

@@ -131,3 +131,23 @@ class VaultAdapter:
                     results[path][key] = False
 
         return results
+
+
+def validate_required_secrets() -> None:
+    """Verify all required Vault secrets exist.
+
+    Module-level wrapper called by startup validation.
+    Raises VaultConnectionError if any required secret is missing.
+    """
+    adapter = VaultAdapter()
+    results = adapter.validate_required_secrets()
+    missing = [
+        f"{path}:{key}"
+        for path, keys in results.items()
+        for key, ok in keys.items()
+        if not ok
+    ]
+    if missing:
+        raise VaultConnectionError(
+            f"Missing Vault secrets: {', '.join(missing)}"
+        )

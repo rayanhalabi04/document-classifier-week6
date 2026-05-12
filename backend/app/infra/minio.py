@@ -218,3 +218,47 @@ class MinIOAdapter:
         if exc.code == "NoSuchKey":
             raise MinIOFileNotFoundError(f"{msg}: not found") from exc
         raise MinIOConnectionError(f"{msg}: {exc}") from exc
+
+
+# ------------------------------------------------------------------
+# Module-level functions — called by services and startup validation
+# ------------------------------------------------------------------
+
+
+def upload_original(document_id: str, data: bytes) -> tuple[str, str]:
+    """Upload an original TIFF to MinIO and return (bucket, key).
+
+    Convenience wrapper called by IngestionService.ingest_file().
+
+    Args:
+        document_id: UUID string of the document record.
+        data: Raw TIFF bytes.
+
+    Returns:
+        Tuple of (bucket_name, object_key).
+    """
+    adapter = MinIOAdapter()
+    key = f"{document_id}.tiff"
+    adapter.upload_file(ORIGINALS_BUCKET, key, data, "image/tiff")
+    return (ORIGINALS_BUCKET, key)
+
+
+def ensure_buckets() -> None:
+    """Create or validate originals and overlays buckets.
+
+    Module-level alias called by startup validation.
+    Idempotent — safe to call on every startup.
+    """
+    MinIOAdapter().ensure_buckets_exist()
+
+
+def check_originals_writable() -> None:
+    """Verify the originals bucket is writable.
+
+    Uploads a tiny probe object to confirm write access.
+    Called by ingestion worker startup validation.
+    """
+    adapter = MinIOAdapter()
+    probe_data = b"startup-probe"
+    probe_key = "_startup_probe_.tiff"
+    adapter.upload_file(ORIGINALS_BUCKET, probe_key, probe_data, "image/tiff")
