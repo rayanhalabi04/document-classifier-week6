@@ -1,8 +1,14 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app, create_app
 
 client = TestClient(app)
+
+
+def test_create_app_imports_successfully() -> None:
+    created_app = create_app()
+
+    assert created_app.title == "Document Classifier API"
 
 
 def test_openapi_schema_is_available() -> None:
