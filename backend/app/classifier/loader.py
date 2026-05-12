@@ -10,6 +10,7 @@ from torchvision.models import (
     ConvNeXt_Small_Weights,
 )
 
+
 from app.classifier.validation import ClassifierValidationError
 from app.domain.model_metadata import ModelCard
 
