@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "document-classifier"
@@ -45,8 +45,8 @@ dependencies = [
     "hvac==2.1.0",
 
     # ML / Classifier
-    "torch==2.3.0",
-    "torchvision==0.18.0",
+    "torch==2.3.0+cpu",
+    "torchvision==0.18.0+cpu",
     "Pillow==10.3.0",
 
     # Utilities

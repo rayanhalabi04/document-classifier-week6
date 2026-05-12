@@ -31,9 +31,7 @@ def upgrade() -> None:
         "queued", "running", "succeeded", "retryable_failed", "terminal_failed",
         name="jobstatus",
     )
-    batchstatus.create(op.get_bind())
-    ingestionstatus.create(op.get_bind())
-    jobstatus.create(op.get_bind())
+    # Types auto-created via before_create event when tables reference them.
 
     # --- users ---
     op.create_table(
@@ -112,7 +110,7 @@ def upgrade() -> None:
         sa.Column("source", sa.String(length=255), nullable=False),
         sa.Column(
             "status",
-            sa.Enum("pending", "processing", "completed", "failed", name="batchstatus"),
+            batchstatus,
             nullable=False,
             server_default="pending",
         ),
@@ -154,10 +152,7 @@ def upgrade() -> None:
         sa.Column("mime_type", sa.String(length=255), nullable=True),
         sa.Column(
             "ingestion_status",
-            sa.Enum(
-                "pending", "stored", "queued", "processing", "completed", "failed",
-                name="ingestionstatus",
-            ),
+            ingestionstatus,
             nullable=False,
             server_default="pending",
         ),
@@ -197,10 +192,7 @@ def upgrade() -> None:
         sa.Column("rq_job_id", sa.String(length=255), nullable=True),
         sa.Column(
             "status",
-            sa.Enum(
-                "queued", "running", "succeeded", "retryable_failed", "terminal_failed",
-                name="jobstatus",
-            ),
+            jobstatus,
             nullable=False,
             server_default="queued",
         ),
