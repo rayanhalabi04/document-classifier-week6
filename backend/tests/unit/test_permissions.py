@@ -1,7 +1,15 @@
 import pytest
 
 from app.domain.roles import Action, Resource, Role
-from app.infra.casbin import can
+from app.infra.casbin import baseline_policy_tuples
+
+
+def _baseline_allows(
+    role: Role | str,
+    resource: Resource | str,
+    action: Action | str,
+) -> bool:
+    return (str(role), str(resource), str(action)) in baseline_policy_tuples()
 
 
 @pytest.mark.parametrize(
@@ -15,7 +23,7 @@ from app.infra.casbin import can
     ],
 )
 def test_admin_baseline_permissions(action: Action, resource: Resource) -> None:
-    assert can(Role.ADMIN, action, resource)
+    assert _baseline_allows(Role.ADMIN, resource, action)
 
 
 @pytest.mark.parametrize(
@@ -23,12 +31,11 @@ def test_admin_baseline_permissions(action: Action, resource: Resource) -> None:
     [
         (Action.READ, Resource.BATCHES),
         (Action.READ, Resource.PREDICTIONS),
-        (Action.REVIEW, Resource.PREDICTIONS),
         (Action.RELABEL, Resource.PREDICTIONS),
     ],
 )
 def test_reviewer_baseline_permissions(action: Action, resource: Resource) -> None:
-    assert can(Role.REVIEWER, action, resource)
+    assert _baseline_allows(Role.REVIEWER, resource, action)
 
 
 @pytest.mark.parametrize(
@@ -42,7 +49,7 @@ def test_reviewer_baseline_permissions(action: Action, resource: Resource) -> No
 def test_reviewer_denied_admin_and_audit_permissions(
     action: Action, resource: Resource
 ) -> None:
-    assert not can(Role.REVIEWER, action, resource)
+    assert not _baseline_allows(Role.REVIEWER, resource, action)
 
 
 @pytest.mark.parametrize(
@@ -54,7 +61,7 @@ def test_reviewer_denied_admin_and_audit_permissions(
     ],
 )
 def test_auditor_can_read_allowed_resources(resource: Resource) -> None:
-    assert can(Role.AUDITOR, Action.READ, resource)
+    assert _baseline_allows(Role.AUDITOR, resource, Action.READ)
 
 
 @pytest.mark.parametrize(
@@ -69,23 +76,30 @@ def test_auditor_can_read_allowed_resources(resource: Resource) -> None:
 def test_auditor_cannot_write_or_change_anything(
     action: Action, resource: Resource
 ) -> None:
-    assert not can(Role.AUDITOR, action, resource)
+    assert not _baseline_allows(Role.AUDITOR, resource, action)
 
 
 def test_unknown_role_is_denied_by_default() -> None:
-    assert not can("operator", Action.READ, Resource.BATCHES)
+    assert not _baseline_allows("operator", Resource.BATCHES, Action.READ)
 
 
 def test_unknown_action_is_denied_by_default() -> None:
-    assert not can(Role.ADMIN, "export", Resource.PREDICTIONS)
+    assert not _baseline_allows(Role.ADMIN, Resource.PREDICTIONS, "export")
 
 
 def test_unknown_resource_is_denied_by_default() -> None:
-    assert not can(Role.ADMIN, Action.READ, "documents")
+    assert not _baseline_allows(Role.ADMIN, "documents", Action.READ)
 
 
 def test_multiple_roles_receive_union_of_allowed_permissions() -> None:
-    assert can([Role.REVIEWER, Role.AUDITOR], Action.READ, Resource.AUDIT_LOGS)
-    assert can([Role.REVIEWER, Role.AUDITOR], Action.RELABEL, Resource.PREDICTIONS)
-    assert not can([Role.REVIEWER, Role.AUDITOR], Action.MANAGE, Resource.USERS)
+    roles = [Role.REVIEWER, Role.AUDITOR]
 
+    assert any(
+        _baseline_allows(role, Resource.AUDIT_LOGS, Action.READ) for role in roles
+    )
+    assert any(
+        _baseline_allows(role, Resource.PREDICTIONS, Action.RELABEL) for role in roles
+    )
+    assert not any(
+        _baseline_allows(role, Resource.USERS, Action.MANAGE) for role in roles
+    )

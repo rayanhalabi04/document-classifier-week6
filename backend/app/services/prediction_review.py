@@ -16,8 +16,10 @@ from sqlalchemy.orm import Session
 
 from app.db.models import Prediction
 from app.domain.errors import InvalidReviewLabel, PredictionNotFound, ReviewNotEligible
+from app.domain.roles import Action, Resource
 from app.repositories.predictions import PredictionRepository
 from app.services.audit_log import AuditLogService
+from app.services.authorization import AuthorizationService
 from app.services.cache_invalidation import invalidate_after_relabel
 
 logger = logging.getLogger(__name__)
@@ -52,6 +54,7 @@ class PredictionReviewService:
         self._session = session
         self._predictions = PredictionRepository(session)
         self._audit = AuditLogService(session)
+        self._authz = AuthorizationService()
 
     def relabel(
         self,
@@ -82,7 +85,18 @@ class PredictionReviewService:
         if prediction is None:
             raise PredictionNotFound(f"Prediction {prediction_id} not found.")
 
-        if not prediction.review_eligible:
+        self._authz.require_permission(
+            reviewer_user_id,
+            Resource.PREDICTIONS,
+            Action.RELABEL,
+        )
+
+        can_bypass_confidence = self._authz.can(
+            reviewer_user_id,
+            Resource.ROLES,
+            Action.MANAGE,
+        )
+        if not can_bypass_confidence and not prediction.review_eligible:
             raise ReviewNotEligible(
                 f"Prediction {prediction_id} is not eligible for review "
                 f"(confidence {prediction.top1_confidence:.3f} >= {REVIEW_CONFIDENCE_THRESHOLD})."

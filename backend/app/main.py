@@ -13,11 +13,15 @@ from app.api import (
     users,
 )
 from app.services.auth import load_jwt_secret
+from app.db.session import SessionFactory
+from app.services.startup_authorization import validate_authorization_startup
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     load_jwt_secret()
+    with SessionFactory() as session:
+        validate_authorization_startup(session)
     yield
 
 
