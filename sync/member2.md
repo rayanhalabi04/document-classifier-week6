@@ -220,8 +220,8 @@ Install: `uv pip install -e ".[dev]"`
 |---|---|---|
 | T057 | Python naming + docstring standards in CONTRIBUTING.md | ✅ Done (included in CONTRIBUTING.md) |
 | T053 | Integration review checkpoints | ✅ Done (included in COLLABORATION.md) |
-| Repository tests | `tests/repository/` — CRUD, duplicate detection, migrations | ⬜ Not started |
-| Service tests | `tests/service/` — ingestion, relabel, role management, cache | ⬜ Not started |
+| Repository tests | `tests/repository/` — CRUD, duplicate detection, all repos | ✅ Done (95 tests, all passing) |
+| Service tests | `tests/service/` — ingestion, classification jobs, relabel, role management | ✅ Done (95 tests, all passing) |
 
 ---
 
