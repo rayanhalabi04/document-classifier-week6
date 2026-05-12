@@ -121,6 +121,10 @@ class CasbinRule(Base):
     v4: Mapped[Optional[str]] = mapped_column(String(255))
     v5: Mapped[Optional[str]] = mapped_column(String(255))
 
+    def __str__(self) -> str:
+        values = [self.ptype, self.v0, self.v1, self.v2, self.v3, self.v4, self.v5]
+        return ", ".join(value for value in values if value is not None)
+
 
 class Batch(Base):
     """Vendor ingestion grouping for a set of scanned documents."""

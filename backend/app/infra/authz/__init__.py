@@ -1,0 +1,1 @@
+"""Casbin-backed authorization adapters."""

@@ -78,11 +78,10 @@ def check_vault() -> None:
 def check_casbin(session_factory) -> None:
     """Verify Casbin policy storage is reachable and baseline policies are loaded."""
     try:
-        from app.infra.casbin import get_enforcer
-        enforcer = get_enforcer(session_factory)
-        # Baseline: admin should be allowed to read batches
-        if not enforcer.enforce("admin", "batches", "read"):
-            raise StartupValidationError("Casbin baseline policies are missing.")
+        from app.services.startup_authorization import validate_authorization_startup
+
+        with session_factory() as session:
+            validate_authorization_startup(session)
     except StartupValidationError:
         raise
     except Exception as exc:
