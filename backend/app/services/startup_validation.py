@@ -90,11 +90,22 @@ def check_casbin(session_factory) -> None:
 
 
 def check_jwt_secret() -> None:
-    """Verify the JWT secret is present and not a placeholder."""
-    import os
-    secret = os.environ.get("JWT_SECRET", "")
-    if not secret or secret in ("changeme", "secret", "your-secret-here"):
-        raise StartupValidationError("JWT_SECRET is missing or is a placeholder.")
+    """Verify the Vault JWT secret is present and not a placeholder."""
+    try:
+        from app.services.auth import load_jwt_secret
+
+        secret = load_jwt_secret()
+    except Exception as exc:
+        raise StartupValidationError("JWT Vault secret is missing.") from exc
+
+    if not secret or secret in (
+        "changeme",
+        "change-me",
+        "change-me-in-production",
+        "secret",
+        "your-secret-here",
+    ):
+        raise StartupValidationError("JWT Vault secret is a placeholder.")
 
 
 def run_api_readiness_checks(session_factory) -> list[str]:

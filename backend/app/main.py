@@ -1,4 +1,7 @@
-﻿from fastapi import FastAPI
+﻿from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 
 from app.api import (
     audit,
@@ -9,6 +12,13 @@ from app.api import (
     roles,
     users,
 )
+from app.services.auth import load_jwt_secret
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    load_jwt_secret()
+    yield
 
 
 def create_app() -> FastAPI:
@@ -16,6 +26,7 @@ def create_app() -> FastAPI:
         title="Document Classifier API",
         version="0.1.0-week6",
         description="Authenticated internal document classification service API.",
+        lifespan=lifespan,
     )
 
     app.include_router(health.router)

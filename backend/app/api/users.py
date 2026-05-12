@@ -1,6 +1,15 @@
-﻿from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app.services.auth import UserRead, current_active_user
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("/me", response_model=UserRead)
+async def get_current_user(
+    user=Depends(current_active_user),
+):
+    return user
 
 
 @router.get("")

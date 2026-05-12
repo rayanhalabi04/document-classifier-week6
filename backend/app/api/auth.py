@@ -1,27 +1,16 @@
-﻿from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+from app.services.auth import auth_backend, fastapi_users, UserCreate, UserRead
 
+router = APIRouter()
 
-@router.post("/register")
-async def register_user() -> None:
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="User registration is not implemented yet.",
-    )
-
-
-@router.post("/login")
-async def login_user() -> None:
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="JWT login is not implemented yet.",
-    )
-
-
-@router.get("/me")
-async def get_current_user() -> None:
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Current user endpoint is not implemented yet.",
-    )
+router.include_router(
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
+    tags=["auth"],
+)
+router.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"],
+)

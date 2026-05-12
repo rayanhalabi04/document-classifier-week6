@@ -21,6 +21,11 @@ class UserRepository:
         stmt = select(User).where(User.email == email)
         return self.session.execute(stmt).scalar_one_or_none()
 
+    def create(self, user: User) -> User:
+        self.session.add(user)
+        self.session.flush()
+        return user
+
     def list(self, limit: int = 100, offset: int = 0) -> list[User]:
         stmt = (
             select(User)
@@ -33,3 +38,7 @@ class UserRepository:
     def update(self, user: User) -> User:
         self.session.flush()
         return user
+
+    def delete(self, user: User) -> None:
+        self.session.delete(user)
+        self.session.flush()
