@@ -1,15 +1,37 @@
 [project]
-name = "document-classifier-service"
+name = "document-classifier"
 version = "0.1.0"
-description = "Authenticated document classification service"
+description = "Internal Document Classification Service - Week 6 AIE Bootcamp"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi",
-    "uvicorn",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "fastapi-users[sqlalchemy]>=13",
+    "casbin",
+    "casbin-sqlalchemy-adapter",
+    "fastapi-cache2[redis]>=0.2",
+    "redis>=4.2,<5.0",
+    "rq>=2",
+    "minio>=7",
+    "hvac>=2",
+    "paramiko>=3",
+    "torch>=2.1",
+    "torchvision>=0.16",
+    "pillow>=10",
+    "python-multipart",
+    "pydantic-settings",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
-    "pytest",
+    "pytest>=8",
+    "pytest-asyncio",
+    "pytest-mock",
     "httpx",
+    "black",
+    "isort",
+    "flake8",
+    "mypy",
 ]
