@@ -1,17 +1,12 @@
-"""Redis Queue adapter for enqueuing classification jobs.
-
-Note: The full RQ adapter implementation is Member 4's domain (T032).
-This module provides the minimal interface needed by the ingestion worker
-to enqueue jobs. Member 4 may replace/enhance this with their full adapter.
-"""
+"""Redis Queue adapter for enqueuing classification jobs."""
 
 from __future__ import annotations
 
-import os
 import uuid
 
-from redis import Redis
 from rq import Queue
+
+from app.infra.redis import get_redis_client
 
 
 def enqueue_classification_job(
@@ -27,8 +22,7 @@ def enqueue_classification_job(
     Returns:
         The RQ job ID as a string.
     """
-    redis_url = os.environ.get("REDIS_URL", "redis://redis:6379/0")
-    connection = Redis.from_url(redis_url)
+    connection = get_redis_client()
     queue = Queue("classification", connection=connection)
     job = queue.enqueue(
         "app.workers.inference_worker.classify",
@@ -41,8 +35,7 @@ def enqueue_classification_job(
 def check_queue_health() -> None:
     """Verify the Redis Queue connection is available.
 
-    Called by startup validation (both ingestion and inference workers).
+    Called by startup validation for both ingestion and inference workers.
+    Raises redis.exceptions.ConnectionError on failure.
     """
-    redis_url = os.environ.get("REDIS_URL", "redis://redis:6379/0")
-    connection = Redis.from_url(redis_url)
-    connection.ping()
+    get_redis_client().ping()
