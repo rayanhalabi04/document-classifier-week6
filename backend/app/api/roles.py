@@ -2,12 +2,11 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_permission
+from app.api.users import get_role_management_service
 from app.domain.errors import PermissionDenied
 from app.domain.roles import Action, Resource
-from app.infra.db import get_session
 from app.services.role_management import RoleManagementService
 
 router = APIRouter(prefix="/roles", tags=["roles"])
@@ -22,10 +21,10 @@ async def update_user_role(
     user_id: uuid.UUID,
     request: ReplaceRolesRequest,
     acting_user=Depends(require_permission(Resource.ROLES, Action.MANAGE)),
-    session: Session = Depends(get_session),
+    role_service: RoleManagementService = Depends(get_role_management_service),
 ) -> dict[str, object]:
     try:
-        assignments = RoleManagementService(session).replace_roles(
+        assignments = role_service.replace_roles(
             target_user_id=user_id,
             new_roles=request.roles,
             acting_admin_id=acting_user.id,
