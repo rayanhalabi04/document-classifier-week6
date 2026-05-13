@@ -144,5 +144,5 @@ jobs:
             --extra-index-url https://download.pytorch.org/whl/cpu \
             -e ".[dev]"
 
-      - name: pytest unit tests
+            - name: pytest unit tests
         run: pytest tests/unit -q -o addopts=''
