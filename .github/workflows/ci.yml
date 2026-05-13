@@ -228,6 +228,13 @@ jobs:
         run: |
           docker compose -f ../docker-compose.yml up -d postgres redis minio vault sftp
 
+      - name: Prepare SFTP drop directory
+        run: |
+          # The Atmoz user is uid/gid 1000; the bind-mounted drop directory
+          # must be writable so the live test can upload drop/live_test.tiff.
+          docker compose -f ../docker-compose.yml exec -T -u root sftp \
+            sh -c 'mkdir -p /home/vendor/drop && chown -R 1000:1000 /home/vendor/drop && chmod 775 /home/vendor/drop'
+
       - name: Wait for service readiness
         run: |
           timeout 120 bash -c 'until docker compose -f ../docker-compose.yml exec -T postgres pg_isready -U postgres -d document_classifier; do sleep 2; done'
