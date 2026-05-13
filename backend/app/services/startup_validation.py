@@ -174,6 +174,7 @@ def run_ingestion_worker_checks() -> list[str]:
     """Run ingestion worker startup checks. Returns list of failed check messages."""
     checks = [
         ("sftp", check_sftp),
+        ("minio_buckets", check_minio_buckets),
         ("minio_originals_writable", check_minio_originals_writable),
         ("rq_queue", check_rq_available),
     ]
@@ -207,6 +208,7 @@ def run_inference_worker_checks() -> list[str]:
     """Run inference worker startup checks. Returns list of failed check messages."""
     checks = [
         ("classifier_assets", check_classifier_assets),
+        ("minio_buckets", check_minio_buckets),
         ("minio_originals_writable", check_minio_originals_writable),
         ("rq_queue", check_rq_available),
         ("redis", check_redis),

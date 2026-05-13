@@ -18,6 +18,7 @@ RUN pip install --upgrade pip uv \
 COPY app/ ./app/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
+COPY scripts/ ./scripts/
 
 RUN groupadd -r appuser && useradd -r -g appuser appuser && chown -R appuser:appuser /app
 

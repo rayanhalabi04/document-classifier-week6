@@ -4,12 +4,7 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
-from torchvision.models import (
-    ConvNeXt_Small_Weights,
-    ConvNeXt_Tiny_Weights,
-    convnext_small,
-    convnext_tiny,
-)
+from torchvision.models import convnext_small, convnext_tiny
 
 from app.classifier.validation import ClassifierValidationError
 from app.domain.model_metadata import ModelCard
@@ -18,13 +13,15 @@ from app.domain.model_metadata import ModelCard
 def build_model(backbone: str, num_classes: int = 16) -> nn.Module:
     """Build a ConvNeXt model with a num_classes-way head.
 
-    Matches the architecture used during training: ImageNet1K weights,
-    final Linear layer replaced with num_classes outputs.
+    The architecture is instantiated with random weights — we always overwrite
+    them via `load_state_dict()` immediately after, so downloading ImageNet
+    pretrained weights every cold start is wasteful and also fails inside the
+    container (no writable HOME for torch hub cache).
     """
     if backbone == "convnext_tiny":
-        model = convnext_tiny(weights=ConvNeXt_Tiny_Weights.IMAGENET1K_V1)
+        model = convnext_tiny(weights=None)
     elif backbone == "convnext_small":
-        model = convnext_small(weights=ConvNeXt_Small_Weights.IMAGENET1K_V1)
+        model = convnext_small(weights=None)
     else:
         raise ClassifierValidationError(
             f"Unsupported backbone '{backbone}'. Use convnext_tiny or convnext_small."
