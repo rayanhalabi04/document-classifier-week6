@@ -312,10 +312,21 @@ jobs:
 
       - name: pip-audit
         run: |
-          # torch / torchvision +cpu wheels live on the PyTorch index, not PyPI,
-          # so pip-audit cannot resolve them. Exclude them from the audit input.
-          pip freeze | grep -vE '^(torch|torchvision)==' > /tmp/audit-reqs.txt
-          pip-audit -r /tmp/audit-reqs.txt
+          # torch / torchvision +cpu wheels live on the PyTorch index, not PyPI
+          # and are reported as "skipped" by pip-audit. Audit the current env in
+          # JSON mode and fail the job only on real vulnerabilities, not skips.
+          pip-audit --format json > /tmp/audit.json || true
+          python -c "
+          import json, sys
+          data = json.load(open('/tmp/audit.json'))
+          vulnerable = [d for d in data.get('dependencies', []) if d.get('vulns')]
+          if vulnerable:
+              print(f'Found vulnerabilities in {len(vulnerable)} packages:')
+              for d in vulnerable:
+                  print(f\"  {d['name']} {d.get('version','')}: {len(d['vulns'])} vulns\")
+              sys.exit(1)
+          print('No vulnerabilities found in audited packages.')
+          "
 
   secret-scan:
     name: Secret scan (gitleaks)
