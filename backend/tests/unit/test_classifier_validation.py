@@ -14,10 +14,10 @@ from app.classifier.validation import (
 )
 from app.domain.model_metadata import RVL_CDIP_LABELS
 
-
 # ---------------------------------------------------------------------------
 # load_and_validate_model_card
 # ---------------------------------------------------------------------------
+
 
 class TestLoadAndValidateModelCard:
     def test_valid_card_parses_correctly(self, model_card_file, valid_model_card_dict):
@@ -94,6 +94,7 @@ class TestLoadAndValidateModelCard:
 # validate_classifier_checksum
 # ---------------------------------------------------------------------------
 
+
 class TestValidateClassifierChecksum:
     def test_correct_sha_passes(self, fake_classifier_file):
         classifier_path, card_path = fake_classifier_file
@@ -121,6 +122,7 @@ class TestValidateClassifierChecksum:
 # validate_accuracy_threshold
 # ---------------------------------------------------------------------------
 
+
 class TestValidateAccuracyThreshold:
     def test_above_threshold_passes(self, model_card_file):
         card = load_and_validate_model_card(model_card_file)
@@ -140,6 +142,7 @@ class TestValidateAccuracyThreshold:
 # ---------------------------------------------------------------------------
 # validate_all (integration of the three checks)
 # ---------------------------------------------------------------------------
+
 
 class TestValidateAll:
     def test_valid_assets_return_model_card(self, fake_classifier_file):

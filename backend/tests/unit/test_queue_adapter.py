@@ -13,8 +13,10 @@ class TestEnqueueClassificationJob:
         mock_queue = MagicMock()
         mock_queue.enqueue.return_value = mock_job
 
-        with patch("app.infra.queue.get_redis_client"), \
-             patch("app.infra.queue.Queue", return_value=mock_queue):
+        with (
+            patch("app.infra.queue.get_redis_client"),
+            patch("app.infra.queue.Queue", return_value=mock_queue),
+        ):
             result = enqueue_classification_job(uuid.uuid4(), uuid.uuid4())
 
         assert result == "rq-job-abc-123"
@@ -25,8 +27,10 @@ class TestEnqueueClassificationJob:
         mock_queue = MagicMock()
         mock_queue.enqueue.return_value = MagicMock()
 
-        with patch("app.infra.queue.get_redis_client"), \
-             patch("app.infra.queue.Queue", return_value=mock_queue) as mock_cls:
+        with (
+            patch("app.infra.queue.get_redis_client"),
+            patch("app.infra.queue.Queue", return_value=mock_queue) as mock_cls,
+        ):
             enqueue_classification_job(uuid.uuid4(), uuid.uuid4())
 
         assert mock_cls.call_args[0][0] == "classification"
@@ -38,8 +42,10 @@ class TestEnqueueClassificationJob:
         mock_queue = MagicMock()
         mock_queue.enqueue.return_value = MagicMock()
 
-        with patch("app.infra.queue.get_redis_client"), \
-             patch("app.infra.queue.Queue", return_value=mock_queue):
+        with (
+            patch("app.infra.queue.get_redis_client"),
+            patch("app.infra.queue.Queue", return_value=mock_queue),
+        ):
             enqueue_classification_job(doc_id, uuid.uuid4())
 
         enqueue_args = mock_queue.enqueue.call_args[0]
@@ -51,8 +57,10 @@ class TestEnqueueClassificationJob:
         mock_queue = MagicMock()
         mock_queue.enqueue.return_value = MagicMock()
 
-        with patch("app.infra.queue.get_redis_client") as mock_redis, \
-             patch("app.infra.queue.Queue", return_value=mock_queue):
+        with (
+            patch("app.infra.queue.get_redis_client") as mock_redis,
+            patch("app.infra.queue.Queue", return_value=mock_queue),
+        ):
             enqueue_classification_job(uuid.uuid4(), uuid.uuid4())
 
         mock_redis.assert_called_once()

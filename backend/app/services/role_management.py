@@ -16,12 +16,12 @@ from sqlalchemy.orm import Session
 
 from app.db.models import RoleAssignment
 from app.domain.errors import PermissionDenied
+from app.infra.authz import casbin_enforcer
 from app.repositories.roles import RoleRepository
 from app.repositories.users import UserRepository
 from app.services.audit_log import AuditLogService
 from app.services.authorization import AuthorizationService
 from app.services.cache_invalidation import invalidate_user_roles
-from app.infra.authz import casbin_enforcer
 
 logger = logging.getLogger(__name__)
 

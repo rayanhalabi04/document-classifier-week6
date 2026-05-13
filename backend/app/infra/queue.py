@@ -4,9 +4,15 @@ from __future__ import annotations
 
 import uuid
 
-from rq import Queue
+from rq import Queue, Retry
 
 from app.infra.redis import get_redis_client
+
+# Retry up to 3 times with exponential backoff (10s, 30s, 60s).
+# The job is marked retryable_failed in the DB each time it fails; once retries
+# are exhausted, the job moves to RQ's failed-job registry and stays in
+# retryable_failed state until manual intervention.
+_CLASSIFICATION_RETRY = Retry(max=3, interval=[10, 30, 60])
 
 
 def enqueue_classification_job(
@@ -25,9 +31,10 @@ def enqueue_classification_job(
     connection = get_redis_client()
     queue = Queue("classification", connection=connection)
     job = queue.enqueue(
-        "app.workers.inference_worker.classify",
+        "app.workers.inference_worker.classify_document",
         str(document_id),
         str(model_metadata_id),
+        retry=_CLASSIFICATION_RETRY,
     )
     return job.id
 

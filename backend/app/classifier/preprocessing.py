@@ -27,13 +27,15 @@ def build_eval_transform(model_card: ModelCard) -> T.Compose:
     mean = model_card.input_config.normalization_mean
     std = model_card.input_config.normalization_std
 
-    return T.Compose([
-        T.Resize(256),
-        T.CenterCrop(size),
-        T.Lambda(lambda img: img.convert("RGB")),
-        T.ToTensor(),
-        T.Normalize(mean=mean, std=std),
-    ])
+    return T.Compose(
+        [
+            T.Resize(256),
+            T.CenterCrop(size),
+            T.Lambda(lambda img: img.convert("RGB")),
+            T.ToTensor(),
+            T.Normalize(mean=mean, std=std),
+        ]
+    )
 
 
 def load_tiff(image_path: Path) -> Image.Image:
@@ -48,9 +50,7 @@ def load_tiff(image_path: Path) -> Image.Image:
         img = Image.open(image_path)
         img.load()  # force full decode to catch corrupt files early
     except (UnidentifiedImageError, OSError) as exc:
-        raise PreprocessingError(
-            f"Cannot read image {image_path}: {exc}"
-        ) from exc
+        raise PreprocessingError(f"Cannot read image {image_path}: {exc}") from exc
 
     return img
 
@@ -78,8 +78,6 @@ def preprocess(image_path: Path, model_card: ModelCard) -> torch.Tensor:
     try:
         tensor = transform(img)
     except Exception as exc:
-        raise PreprocessingError(
-            f"Transform failed for {image_path}: {exc}"
-        ) from exc
+        raise PreprocessingError(f"Transform failed for {image_path}: {exc}") from exc
 
     return tensor.unsqueeze(0)  # add batch dimension → (1, 3, H, W)

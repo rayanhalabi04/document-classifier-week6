@@ -22,9 +22,7 @@ import structlog
 _request_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
     "request_id", default=""
 )
-_job_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "job_id", default=""
-)
+_job_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("job_id", default="")
 
 
 def set_request_id(request_id: str) -> None:

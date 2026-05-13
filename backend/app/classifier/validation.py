@@ -5,12 +5,12 @@ import json
 from pathlib import Path
 
 from app.domain.model_metadata import (
+    RVL_CDIP_LABELS,
+    SUPPORTED_ARCHITECTURES,
     ModelCard,
     ModelCardArtifact,
     ModelCardInput,
     ModelCardMetrics,
-    RVL_CDIP_LABELS,
-    SUPPORTED_ARCHITECTURES,
 )
 
 
@@ -32,9 +32,7 @@ def load_and_validate_model_card(model_card_path: Path) -> ModelCard:
     Raises ClassifierValidationError for any structural problem.
     """
     if not model_card_path.exists():
-        raise ClassifierValidationError(
-            f"model_card.json not found: {model_card_path}"
-        )
+        raise ClassifierValidationError(f"model_card.json not found: {model_card_path}")
 
     try:
         with open(model_card_path) as f:
@@ -46,8 +44,13 @@ def load_and_validate_model_card(model_card_path: Path) -> ModelCard:
 
     # Required top-level keys.
     required = {
-        "backbone", "num_classes", "classes", "artifact",
-        "input", "metrics", "refuse_to_start_threshold",
+        "backbone",
+        "num_classes",
+        "classes",
+        "artifact",
+        "input",
+        "metrics",
+        "refuse_to_start_threshold",
     }
     missing = required - raw.keys()
     if missing:
@@ -131,17 +134,13 @@ def load_and_validate_model_card(model_card_path: Path) -> ModelCard:
     )
 
 
-def validate_classifier_checksum(
-    classifier_path: Path, model_card: ModelCard
-) -> None:
+def validate_classifier_checksum(classifier_path: Path, model_card: ModelCard) -> None:
     """Verify classifier.pt SHA-256 matches model_card.json.
 
     Raises ClassifierValidationError on mismatch or missing file.
     """
     if not classifier_path.exists():
-        raise ClassifierValidationError(
-            f"classifier.pt not found: {classifier_path}"
-        )
+        raise ClassifierValidationError(f"classifier.pt not found: {classifier_path}")
 
     actual = _sha256(classifier_path)
     expected = model_card.artifact.sha256
@@ -180,3 +179,18 @@ def validate_all(classifier_path: Path, model_card_path: Path) -> ModelCard:
     validate_classifier_checksum(classifier_path, model_card)
     validate_accuracy_threshold(model_card)
     return model_card
+
+
+_DEFAULT_MODELS_DIR = Path(__file__).parent / "models"
+
+
+def validate_classifier_assets() -> ModelCard:
+    """Validate classifier assets at their default location.
+
+    Used by the inference worker startup check. Reads classifier.pt and
+    model_card.json from `app/classifier/models/`.
+    """
+    return validate_all(
+        classifier_path=_DEFAULT_MODELS_DIR / "classifier.pt",
+        model_card_path=_DEFAULT_MODELS_DIR / "model_card.json",
+    )

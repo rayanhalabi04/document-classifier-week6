@@ -11,7 +11,9 @@ from app.repositories.documents import DocumentRepository
 
 class TestGetById:
     def test_returns_document_when_found(self, mock_session, sample_document):
-        mock_session.execute.return_value.scalar_one_or_none.return_value = sample_document
+        mock_session.execute.return_value.scalar_one_or_none.return_value = (
+            sample_document
+        )
         repo = DocumentRepository(mock_session)
 
         result = repo.get_by_id(sample_document.id)
@@ -29,7 +31,9 @@ class TestGetById:
 
 class TestListByBatch:
     def test_returns_documents_for_batch(self, mock_session, sample_document, batch_id):
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [sample_document]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            sample_document
+        ]
         repo = DocumentRepository(mock_session)
 
         result = repo.list_by_batch(batch_id)
@@ -46,8 +50,12 @@ class TestListByBatch:
 
 
 class TestFindActiveDuplicate:
-    def test_returns_existing_document_when_duplicate_found(self, mock_session, sample_document):
-        mock_session.execute.return_value.scalar_one_or_none.return_value = sample_document
+    def test_returns_existing_document_when_duplicate_found(
+        self, mock_session, sample_document
+    ):
+        mock_session.execute.return_value.scalar_one_or_none.return_value = (
+            sample_document
+        )
         repo = DocumentRepository(mock_session)
 
         result = repo.find_active_duplicate(

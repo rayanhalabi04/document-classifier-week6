@@ -8,7 +8,11 @@ import pytest
 import app.infra.minio  # noqa: F401 — must be imported so patch() can resolve the module
 import app.infra.queue  # noqa: F401 — must be imported so patch() can resolve the module
 from app.db.models import Document, IngestionStatus
-from app.domain.errors import DuplicateDocumentError, StorageError, UnsupportedFileTypeError
+from app.domain.errors import (
+    DuplicateDocumentError,
+    StorageError,
+    UnsupportedFileTypeError,
+)
 from app.services.ingestion import IngestionService
 
 # Minimal valid TIFF magic bytes (little-endian)
@@ -35,11 +39,25 @@ def mock_batch():
 @pytest.fixture()
 def service(mock_session, mock_batch):
     with (
-        patch("app.repositories.batches.BatchRepository.list", return_value=[mock_batch]),
-        patch("app.repositories.documents.DocumentRepository.find_active_duplicate", return_value=None),
-        patch("app.repositories.documents.DocumentRepository.create", side_effect=lambda d: d),
-        patch("app.repositories.jobs.ClassificationJobRepository.create", side_effect=lambda j: j),
-        patch("app.infra.minio.upload_original", return_value=("originals", "docs/test.tif")),
+        patch(
+            "app.repositories.batches.BatchRepository.list", return_value=[mock_batch]
+        ),
+        patch(
+            "app.repositories.documents.DocumentRepository.find_active_duplicate",
+            return_value=None,
+        ),
+        patch(
+            "app.repositories.documents.DocumentRepository.create",
+            side_effect=lambda d: d,
+        ),
+        patch(
+            "app.repositories.jobs.ClassificationJobRepository.create",
+            side_effect=lambda j: j,
+        ),
+        patch(
+            "app.infra.minio.upload_original",
+            return_value=("originals", "docs/test.tif"),
+        ),
         patch("app.infra.queue.enqueue_classification_job", return_value="rq-xyz"),
     ):
         yield IngestionService(mock_session)
@@ -48,11 +66,26 @@ def service(mock_session, mock_batch):
 class TestValidateTiff:
     def test_accepts_little_endian_tiff(self, mock_session, mock_batch):
         with (
-            patch("app.repositories.batches.BatchRepository.list", return_value=[mock_batch]),
-            patch("app.repositories.documents.DocumentRepository.find_active_duplicate", return_value=None),
-            patch("app.repositories.documents.DocumentRepository.create", side_effect=lambda d: d),
-            patch("app.repositories.jobs.ClassificationJobRepository.create", side_effect=lambda j: j),
-            patch("app.infra.minio.upload_original", return_value=("originals", "docs/test.tif")),
+            patch(
+                "app.repositories.batches.BatchRepository.list",
+                return_value=[mock_batch],
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.find_active_duplicate",
+                return_value=None,
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.create",
+                side_effect=lambda d: d,
+            ),
+            patch(
+                "app.repositories.jobs.ClassificationJobRepository.create",
+                side_effect=lambda j: j,
+            ),
+            patch(
+                "app.infra.minio.upload_original",
+                return_value=("originals", "docs/test.tif"),
+            ),
             patch("app.infra.queue.enqueue_classification_job", return_value="rq-xyz"),
         ):
             svc = IngestionService(mock_session)
@@ -67,11 +100,26 @@ class TestValidateTiff:
     def test_accepts_big_endian_tiff(self, mock_session, mock_batch):
         big_endian = b"MM\x00*" + b"\x00" * 100
         with (
-            patch("app.repositories.batches.BatchRepository.list", return_value=[mock_batch]),
-            patch("app.repositories.documents.DocumentRepository.find_active_duplicate", return_value=None),
-            patch("app.repositories.documents.DocumentRepository.create", side_effect=lambda d: d),
-            patch("app.repositories.jobs.ClassificationJobRepository.create", side_effect=lambda j: j),
-            patch("app.infra.minio.upload_original", return_value=("originals", "docs/test.tif")),
+            patch(
+                "app.repositories.batches.BatchRepository.list",
+                return_value=[mock_batch],
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.find_active_duplicate",
+                return_value=None,
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.create",
+                side_effect=lambda d: d,
+            ),
+            patch(
+                "app.repositories.jobs.ClassificationJobRepository.create",
+                side_effect=lambda j: j,
+            ),
+            patch(
+                "app.infra.minio.upload_original",
+                return_value=("originals", "docs/test.tif"),
+            ),
             patch("app.infra.queue.enqueue_classification_job", return_value="rq-xyz"),
         ):
             svc = IngestionService(mock_session)
@@ -114,10 +162,22 @@ class TestDuplicateDetection:
 class TestStorageFailure:
     def test_raises_storage_error_on_minio_failure(self, mock_session, mock_batch):
         with (
-            patch("app.repositories.batches.BatchRepository.list", return_value=[mock_batch]),
-            patch("app.repositories.documents.DocumentRepository.find_active_duplicate", return_value=None),
-            patch("app.repositories.documents.DocumentRepository.create", side_effect=lambda d: d),
-            patch("app.infra.minio.upload_original", side_effect=RuntimeError("connection refused")),
+            patch(
+                "app.repositories.batches.BatchRepository.list",
+                return_value=[mock_batch],
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.find_active_duplicate",
+                return_value=None,
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.create",
+                side_effect=lambda d: d,
+            ),
+            patch(
+                "app.infra.minio.upload_original",
+                side_effect=RuntimeError("connection refused"),
+            ),
         ):
             svc = IngestionService(mock_session)
             with pytest.raises(StorageError, match="MinIO upload failed"):
@@ -132,11 +192,26 @@ class TestStorageFailure:
 class TestSuccessfulIngestion:
     def test_commits_after_ingestion(self, mock_session, mock_batch):
         with (
-            patch("app.repositories.batches.BatchRepository.list", return_value=[mock_batch]),
-            patch("app.repositories.documents.DocumentRepository.find_active_duplicate", return_value=None),
-            patch("app.repositories.documents.DocumentRepository.create", side_effect=lambda d: d),
-            patch("app.repositories.jobs.ClassificationJobRepository.create", side_effect=lambda j: j),
-            patch("app.infra.minio.upload_original", return_value=("originals", "docs/test.tif")),
+            patch(
+                "app.repositories.batches.BatchRepository.list",
+                return_value=[mock_batch],
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.find_active_duplicate",
+                return_value=None,
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.create",
+                side_effect=lambda d: d,
+            ),
+            patch(
+                "app.repositories.jobs.ClassificationJobRepository.create",
+                side_effect=lambda j: j,
+            ),
+            patch(
+                "app.infra.minio.upload_original",
+                return_value=("originals", "docs/test.tif"),
+            ),
             patch("app.infra.queue.enqueue_classification_job", return_value="rq-xyz"),
             patch("app.services.cache_invalidation.invalidate_batch_list"),
         ):
@@ -151,11 +226,26 @@ class TestSuccessfulIngestion:
 
     def test_cache_failure_does_not_raise(self, mock_session, mock_batch):
         with (
-            patch("app.repositories.batches.BatchRepository.list", return_value=[mock_batch]),
-            patch("app.repositories.documents.DocumentRepository.find_active_duplicate", return_value=None),
-            patch("app.repositories.documents.DocumentRepository.create", side_effect=lambda d: d),
-            patch("app.repositories.jobs.ClassificationJobRepository.create", side_effect=lambda j: j),
-            patch("app.infra.minio.upload_original", return_value=("originals", "docs/test.tif")),
+            patch(
+                "app.repositories.batches.BatchRepository.list",
+                return_value=[mock_batch],
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.find_active_duplicate",
+                return_value=None,
+            ),
+            patch(
+                "app.repositories.documents.DocumentRepository.create",
+                side_effect=lambda d: d,
+            ),
+            patch(
+                "app.repositories.jobs.ClassificationJobRepository.create",
+                side_effect=lambda j: j,
+            ),
+            patch(
+                "app.infra.minio.upload_original",
+                return_value=("originals", "docs/test.tif"),
+            ),
             patch("app.infra.queue.enqueue_classification_job", return_value="rq-xyz"),
             patch(
                 "app.services.cache_invalidation.invalidate_batch_list",

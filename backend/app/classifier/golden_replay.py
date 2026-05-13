@@ -16,14 +16,14 @@ class GoldenResult:
     """Outcome of a single golden-set fixture check."""
 
     filename: str
-    expected_label: int       # model_predicted_label from golden_expected.json
+    expected_label: int  # model_predicted_label from golden_expected.json
     expected_class: str
     expected_confidence: float
     actual_label: int
     actual_class: str
     actual_confidence: float
     passed: bool
-    failure_reason: str       # empty string when passed
+    failure_reason: str  # empty string when passed
 
 
 @dataclass

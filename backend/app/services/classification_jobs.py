@@ -114,7 +114,8 @@ class ClassificationJobService:
             invalidate_after_classification(batch_id, prediction.id)
         except Exception:
             logger.warning(
-                "Cache invalidation failed after classification of document %s", document_id
+                "Cache invalidation failed after classification of document %s",
+                document_id,
             )
 
         return prediction
@@ -138,9 +139,7 @@ class ClassificationJobService:
         self._session.commit()
         return job
 
-    def mark_terminal_failure(
-        self, job_id: uuid.UUID, error: str
-    ) -> ClassificationJob:
+    def mark_terminal_failure(self, job_id: uuid.UUID, error: str) -> ClassificationJob:
         """Record a terminal failure — the job will not be retried."""
         job = self._require_job(job_id)
         job.status = JobStatus.terminal_failed

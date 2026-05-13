@@ -20,4 +20,3 @@ class Resource(StrEnum):
     AUDIT_LOGS = "audit_logs"
     BATCHES = "batches"
     PREDICTIONS = "predictions"
-

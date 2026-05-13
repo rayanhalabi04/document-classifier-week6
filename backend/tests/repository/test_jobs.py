@@ -47,7 +47,9 @@ class TestGetByRqJobId:
 
 class TestListByDocument:
     def test_returns_jobs_for_document(self, mock_session, sample_job, document_id):
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [sample_job]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            sample_job
+        ]
         repo = ClassificationJobRepository(mock_session)
 
         result = repo.list_by_document(document_id)

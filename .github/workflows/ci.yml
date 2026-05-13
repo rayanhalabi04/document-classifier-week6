@@ -267,3 +267,86 @@ jobs:
       - name: Stop service dependencies
         if: always()
         run: docker compose -f ../docker-compose.yml down -v
+
+  typecheck:
+    name: Type check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend and dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            -e ".[dev]"
+
+      - name: mypy (non-blocking)
+        # Type checking is informational for the bootcamp scope: it logs every
+        # type error but does not fail the build. Many existing errors live in
+        # other members' modules (api/, repositories/, infra/sftp.py, services/)
+        # and require coordinated cleanup — tracked as follow-up.
+        run: mypy app/ || true
+
+  dependency-audit:
+    name: Dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend and dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            -e ".[dev]"
+          python -m pip install pip-audit
+
+      - name: pip-audit (non-blocking)
+        # Audit is informational for the bootcamp scope: it logs every CVE
+        # found but does not fail the build. Known vulnerable transitive deps
+        # (fastapi-users / starlette / python-jose / pyjwt) are coupled to
+        # Member 1's auth code and need a coordinated upgrade — tracked as
+        # follow-up. The torch / torchvision +cpu wheels are also skipped
+        # because they live on the PyTorch index, not PyPI.
+        run: |
+          pip-audit --format json > /tmp/audit.json || true
+          python -c "
+          import json
+          data = json.load(open('/tmp/audit.json'))
+          vulnerable = [d for d in data.get('dependencies', []) if d.get('vulns')]
+          if vulnerable:
+              print(f'WARNING: {len(vulnerable)} packages have known vulnerabilities:')
+              for d in vulnerable:
+                  print(f\"  {d['name']} {d.get('version','')}: {len(d['vulns'])} vulns\")
+              print('Build is not failed — see follow-up to upgrade these.')
+          else:
+              print('No vulnerabilities found in audited packages.')
+          "
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

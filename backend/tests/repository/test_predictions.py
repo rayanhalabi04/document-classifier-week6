@@ -11,7 +11,9 @@ from app.repositories.predictions import PredictionRepository
 
 class TestGetById:
     def test_returns_prediction_when_found(self, mock_session, sample_prediction):
-        mock_session.execute.return_value.scalar_one_or_none.return_value = sample_prediction
+        mock_session.execute.return_value.scalar_one_or_none.return_value = (
+            sample_prediction
+        )
         repo = PredictionRepository(mock_session)
 
         result = repo.get_by_id(sample_prediction.id)
@@ -31,7 +33,9 @@ class TestGetByDocumentId:
     def test_returns_latest_prediction_for_document(
         self, mock_session, sample_prediction, document_id
     ):
-        mock_session.execute.return_value.scalar_one_or_none.return_value = sample_prediction
+        mock_session.execute.return_value.scalar_one_or_none.return_value = (
+            sample_prediction
+        )
         repo = PredictionRepository(mock_session)
 
         result = repo.get_by_document_id(document_id)
@@ -49,7 +53,9 @@ class TestGetByDocumentId:
 
 class TestListReviewEligible:
     def test_returns_eligible_predictions(self, mock_session, sample_prediction):
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [sample_prediction]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            sample_prediction
+        ]
         repo = PredictionRepository(mock_session)
 
         result = repo.list_review_eligible()
@@ -86,7 +92,9 @@ class TestCreate:
 
 
 class TestUpdate:
-    def test_flushes_session_and_returns_prediction(self, mock_session, sample_prediction):
+    def test_flushes_session_and_returns_prediction(
+        self, mock_session, sample_prediction
+    ):
         repo = PredictionRepository(mock_session)
 
         result = repo.update(sample_prediction)

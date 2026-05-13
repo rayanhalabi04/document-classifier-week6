@@ -44,7 +44,9 @@ class TestGetById:
 class TestList:
     def test_returns_events_without_filters(self, mock_session):
         event = MagicMock(spec=AuditEvent)
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [event]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            event
+        ]
         repo = AuditEventRepository(mock_session)
 
         result = repo.list()
@@ -69,7 +71,9 @@ class TestList:
 
     def test_accepts_action_filter(self, mock_session):
         event = MagicMock(spec=AuditEvent)
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [event]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            event
+        ]
         repo = AuditEventRepository(mock_session)
 
         result = repo.list(action="document.ingested")

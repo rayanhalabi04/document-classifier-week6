@@ -26,7 +26,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from app.db.session import SessionFactory
-from app.domain.errors import DuplicateDocumentError, UnsupportedFileTypeError, StorageError
+from app.domain.errors import (
+    DuplicateDocumentError,
+    StorageError,
+    UnsupportedFileTypeError,
+)
 from app.infra.sftp import SFTPAdapter, SFTPFileInfo
 from app.repositories.model_metadata import ModelMetadataRepository
 from app.services.ingestion import IngestionService
@@ -42,6 +46,7 @@ SFTP_DROP_DIR = os.environ.get("SFTP_DROP_DIR", "drop")
 @dataclass
 class _SeenFile:
     """Tracks a previously observed file for stable-file detection."""
+
     size_bytes: int
     modified_at: datetime
 
@@ -191,9 +196,7 @@ def _process_file(
             exc,
         )
     except Exception as exc:
-        logger.error(
-            "Unexpected error ingesting %s: %s", file_info.filename, exc
-        )
+        logger.error("Unexpected error ingesting %s: %s", file_info.filename, exc)
 
 
 def _get_sftp_adapter() -> SFTPAdapter:

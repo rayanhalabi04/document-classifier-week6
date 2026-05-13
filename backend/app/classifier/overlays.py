@@ -24,10 +24,10 @@ class OverlayError(Exception):
 
 # Banner height in pixels drawn at the top of the image.
 _BANNER_HEIGHT = 48
-_BANNER_COLOR = (30, 30, 30)       # dark background
-_TEXT_COLOR = (255, 255, 255)      # white text
-_HIGH_CONF_COLOR = (34, 197, 94)   # green for confidence >= 0.7
-_LOW_CONF_COLOR = (251, 146, 60)   # orange for confidence < 0.7
+_BANNER_COLOR = (30, 30, 30)  # dark background
+_TEXT_COLOR = (255, 255, 255)  # white text
+_HIGH_CONF_COLOR = (34, 197, 94)  # green for confidence >= 0.7
+_LOW_CONF_COLOR = (251, 146, 60)  # orange for confidence < 0.7
 
 
 def generate_overlay(
