@@ -180,3 +180,18 @@ def validate_all(classifier_path: Path, model_card_path: Path) -> ModelCard:
     validate_classifier_checksum(classifier_path, model_card)
     validate_accuracy_threshold(model_card)
     return model_card
+
+
+_DEFAULT_MODELS_DIR = Path(__file__).parent / "models"
+
+
+def validate_classifier_assets() -> ModelCard:
+    """Validate classifier assets at their default location.
+
+    Used by the inference worker startup check. Reads classifier.pt and
+    model_card.json from `app/classifier/models/`.
+    """
+    return validate_all(
+        classifier_path=_DEFAULT_MODELS_DIR / "classifier.pt",
+        model_card_path=_DEFAULT_MODELS_DIR / "model_card.json",
+    )
