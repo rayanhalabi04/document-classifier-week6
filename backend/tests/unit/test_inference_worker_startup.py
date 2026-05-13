@@ -24,12 +24,15 @@ class TestInferenceWorkerStartup:
     def test_starts_worker_when_checks_pass(self):
         from app.workers import inference_worker
 
-        with patch(
-            "app.workers.inference_worker.run_inference_worker_checks",
-            return_value=[],
-        ), patch("app.infra.redis.get_redis_client"), patch(
-            "rq.Worker"
-        ) as mock_worker_cls, patch("rq.Queue") as mock_queue_cls:
+        with (
+            patch(
+                "app.workers.inference_worker.run_inference_worker_checks",
+                return_value=[],
+            ),
+            patch("app.infra.redis.get_redis_client"),
+            patch("rq.Worker") as mock_worker_cls,
+            patch("rq.Queue") as mock_queue_cls,
+        ):
             mock_worker_cls.return_value.work.return_value = None
             inference_worker.main()
 
@@ -56,9 +59,7 @@ class TestValidateClassifierAssets:
 class TestClassifyDocument:
     """T029/T030/T037 — RQ job runs inference, uploads overlay, persists result."""
 
-    def _setup_session_mocks(
-        self, doc_present=True, active_job_present=True
-    ):
+    def _setup_session_mocks(self, doc_present=True, active_job_present=True):
         """Build all the patched dependencies the job function calls."""
         mock_job = MagicMock()
         mock_job.id = uuid.uuid4()
@@ -97,23 +98,26 @@ class TestClassifyDocument:
 
         m = self._setup_session_mocks(active_job_present=False)
 
-        with patch(
-            "app.workers.inference_worker.SessionFactory",
-            return_value=m["session_ctx"],
-        ), patch(
-            "app.workers.inference_worker.ClassificationJobRepository",
-            return_value=m["job_repo"],
-        ), patch(
-            "app.workers.inference_worker.DocumentRepository",
-            return_value=m["doc_repo"],
-        ), patch(
-            "app.workers.inference_worker.ClassificationJobService",
-            return_value=m["svc"],
+        with (
+            patch(
+                "app.workers.inference_worker.SessionFactory",
+                return_value=m["session_ctx"],
+            ),
+            patch(
+                "app.workers.inference_worker.ClassificationJobRepository",
+                return_value=m["job_repo"],
+            ),
+            patch(
+                "app.workers.inference_worker.DocumentRepository",
+                return_value=m["doc_repo"],
+            ),
+            patch(
+                "app.workers.inference_worker.ClassificationJobService",
+                return_value=m["svc"],
+            ),
         ):
             with pytest.raises(ClassificationError):
-                inference_worker.classify_document(
-                    str(uuid.uuid4()), str(uuid.uuid4())
-                )
+                inference_worker.classify_document(str(uuid.uuid4()), str(uuid.uuid4()))
 
     def test_marks_running_then_persists_on_success(self):
         from app.workers import inference_worker
@@ -125,30 +129,33 @@ class TestClassifyDocument:
         mock_result.top1_confidence = 0.92
         mock_result.class_scores = {"letter": 0.92}
 
-        with patch(
-            "app.workers.inference_worker.SessionFactory",
-            return_value=m["session_ctx"],
-        ), patch(
-            "app.workers.inference_worker.ClassificationJobRepository",
-            return_value=m["job_repo"],
-        ), patch(
-            "app.workers.inference_worker.DocumentRepository",
-            return_value=m["doc_repo"],
-        ), patch(
-            "app.workers.inference_worker.ClassificationJobService",
-            return_value=m["svc"],
-        ), patch(
-            "app.workers.inference_worker._run_pipeline",
-            return_value=(mock_result, b"PNG_BYTES"),
-        ), patch(
-            "app.workers.inference_worker.MinIOAdapter"
-        ) as mock_minio_cls:
+        with (
+            patch(
+                "app.workers.inference_worker.SessionFactory",
+                return_value=m["session_ctx"],
+            ),
+            patch(
+                "app.workers.inference_worker.ClassificationJobRepository",
+                return_value=m["job_repo"],
+            ),
+            patch(
+                "app.workers.inference_worker.DocumentRepository",
+                return_value=m["doc_repo"],
+            ),
+            patch(
+                "app.workers.inference_worker.ClassificationJobService",
+                return_value=m["svc"],
+            ),
+            patch(
+                "app.workers.inference_worker._run_pipeline",
+                return_value=(mock_result, b"PNG_BYTES"),
+            ),
+            patch("app.workers.inference_worker.MinIOAdapter") as mock_minio_cls,
+        ):
             mock_minio = MagicMock()
             mock_minio_cls.return_value = mock_minio
 
-            inference_worker.classify_document(
-                str(uuid.uuid4()), str(uuid.uuid4())
-            )
+            inference_worker.classify_document(str(uuid.uuid4()), str(uuid.uuid4()))
 
         m["svc"].mark_running.assert_called_once_with(m["job"].id)
         mock_minio.upload_file.assert_called_once()
@@ -165,26 +172,30 @@ class TestClassifyDocument:
 
         m = self._setup_session_mocks()
 
-        with patch(
-            "app.workers.inference_worker.SessionFactory",
-            return_value=m["session_ctx"],
-        ), patch(
-            "app.workers.inference_worker.ClassificationJobRepository",
-            return_value=m["job_repo"],
-        ), patch(
-            "app.workers.inference_worker.DocumentRepository",
-            return_value=m["doc_repo"],
-        ), patch(
-            "app.workers.inference_worker.ClassificationJobService",
-            return_value=m["svc"],
-        ), patch(
-            "app.workers.inference_worker._run_pipeline",
-            side_effect=RuntimeError("model exploded"),
+        with (
+            patch(
+                "app.workers.inference_worker.SessionFactory",
+                return_value=m["session_ctx"],
+            ),
+            patch(
+                "app.workers.inference_worker.ClassificationJobRepository",
+                return_value=m["job_repo"],
+            ),
+            patch(
+                "app.workers.inference_worker.DocumentRepository",
+                return_value=m["doc_repo"],
+            ),
+            patch(
+                "app.workers.inference_worker.ClassificationJobService",
+                return_value=m["svc"],
+            ),
+            patch(
+                "app.workers.inference_worker._run_pipeline",
+                side_effect=RuntimeError("model exploded"),
+            ),
         ):
             with pytest.raises(RuntimeError, match="model exploded"):
-                inference_worker.classify_document(
-                    str(uuid.uuid4()), str(uuid.uuid4())
-                )
+                inference_worker.classify_document(str(uuid.uuid4()), str(uuid.uuid4()))
 
         m["svc"].mark_retryable_failure.assert_called_once()
         m["svc"].persist_result.assert_not_called()

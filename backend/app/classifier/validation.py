@@ -32,9 +32,7 @@ def load_and_validate_model_card(model_card_path: Path) -> ModelCard:
     Raises ClassifierValidationError for any structural problem.
     """
     if not model_card_path.exists():
-        raise ClassifierValidationError(
-            f"model_card.json not found: {model_card_path}"
-        )
+        raise ClassifierValidationError(f"model_card.json not found: {model_card_path}")
 
     try:
         with open(model_card_path) as f:
@@ -46,8 +44,13 @@ def load_and_validate_model_card(model_card_path: Path) -> ModelCard:
 
     # Required top-level keys.
     required = {
-        "backbone", "num_classes", "classes", "artifact",
-        "input", "metrics", "refuse_to_start_threshold",
+        "backbone",
+        "num_classes",
+        "classes",
+        "artifact",
+        "input",
+        "metrics",
+        "refuse_to_start_threshold",
     }
     missing = required - raw.keys()
     if missing:
@@ -131,17 +134,13 @@ def load_and_validate_model_card(model_card_path: Path) -> ModelCard:
     )
 
 
-def validate_classifier_checksum(
-    classifier_path: Path, model_card: ModelCard
-) -> None:
+def validate_classifier_checksum(classifier_path: Path, model_card: ModelCard) -> None:
     """Verify classifier.pt SHA-256 matches model_card.json.
 
     Raises ClassifierValidationError on mismatch or missing file.
     """
     if not classifier_path.exists():
-        raise ClassifierValidationError(
-            f"classifier.pt not found: {classifier_path}"
-        )
+        raise ClassifierValidationError(f"classifier.pt not found: {classifier_path}")
 
     actual = _sha256(classifier_path)
     expected = model_card.artifact.sha256
