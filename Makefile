@@ -1,4 +1,4 @@
-.PHONY: setup up down reset test test-live test-all clean logs ps seed
+.PHONY: setup up down reset test test-live test-all clean logs ps seed seed-users seed-all
 
 # ── First-time setup ──────────────────────────────────────────────
 setup:
@@ -8,13 +8,21 @@ setup:
 	cp -n backend/.env.example backend/.env 2>/dev/null || true
 	@echo "==> Starting all services ..."
 	docker compose up -d
-	@echo "==> Waiting for Vault to be ready ..."
-	@sleep 8
+	@echo "==> Waiting for services to be ready ..."
+	@sleep 10
+	@echo "==> Running Alembic migrations ..."
+	docker compose run --rm api alembic upgrade head
 	@echo "==> Seeding Vault secrets ..."
 	cd backend && .venv/bin/python scripts/seed_vault.py
+	@echo "==> Seeding model metadata ..."
+	docker compose run --rm api python scripts/seed_model_metadata.py
+	@echo "==> Seeding admin user ..."
+	docker compose run --rm api python scripts/seed_users.py
+	@echo "==> Seeding Casbin policies ..."
+	docker compose run --rm api python scripts/seed_casbin_policies.py
 	@echo ""
-	@echo "Setup complete. Run 'make ps' to check services."
-	@echo "Once Member 2 finishes migrations, run: docker compose exec api alembic upgrade head"
+	@echo "Setup complete — http://localhost:8000"
+	@echo "Login: admin@example.com / admin"
 
 # ── Day-to-day ────────────────────────────────────────────────────
 up:
@@ -57,6 +65,15 @@ reset:
 seed:
 	@echo "Seeding Vault secrets ..."
 	cd backend && .venv/bin/python scripts/seed_vault.py
+
+seed-users:
+	docker compose run --rm api python scripts/seed_users.py
+
+seed-all:
+	@echo "Seeding everything ..."
+	docker compose run --rm api python scripts/seed_model_metadata.py
+	docker compose run --rm api python scripts/seed_users.py
+	docker compose run --rm api python scripts/seed_casbin_policies.py
 
 shell:
 	cd backend && .venv/bin/python
