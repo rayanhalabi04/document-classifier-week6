@@ -311,7 +311,11 @@ jobs:
           python -m pip install pip-audit
 
       - name: pip-audit
-        run: pip-audit
+        run: |
+          # torch / torchvision +cpu wheels live on the PyTorch index, not PyPI,
+          # so pip-audit cannot resolve them. Exclude them from the audit input.
+          pip freeze | grep -vE '^(torch|torchvision)==' > /tmp/audit-reqs.txt
+          pip-audit -r /tmp/audit-reqs.txt
 
   secret-scan:
     name: Secret scan (gitleaks)
