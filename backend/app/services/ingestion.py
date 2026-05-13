@@ -170,13 +170,17 @@ class IngestionService:
             )
 
     def _get_or_create_batch(self, source_path: str) -> Batch:
-        """Use source directory as the batch source identifier."""
+        """Create a fresh batch for each ingested file.
+
+        Previous behaviour reused any open `processing` batch indefinitely
+        because nothing in the system transitions a batch to `completed`,
+        so every document piled into a single row and `document_count` grew
+        forever. One batch per file is the simplest correct behaviour and
+        gives the API and reviewers a clean unit to track.
+        """
         import os
 
         source_dir = os.path.dirname(source_path) or "/"
-        batches = self._batches.list(status=BatchStatus.processing, limit=1)
-        if batches:
-            return batches[0]
         batch = Batch(
             id=uuid.uuid4(),
             source=source_dir,
