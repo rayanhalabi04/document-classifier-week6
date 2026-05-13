@@ -20,6 +20,8 @@ import uuid
 from pathlib import Path
 from typing import Optional, Tuple
 
+import torch.nn as nn
+
 from app.classifier.inference import InferenceResult, run_inference
 from app.classifier.loader import load_classifier
 from app.classifier.overlays import generate_overlay
@@ -40,10 +42,10 @@ _MODELS_DIR = Path(__file__).parent.parent / "classifier" / "models"
 _CLASSIFIER_PATH = _MODELS_DIR / "classifier.pt"
 _MODEL_CARD_PATH = _MODELS_DIR / "model_card.json"
 
-_model_cache: Optional[Tuple[object, ModelCard]] = None
+_model_cache: Optional[Tuple[nn.Module, ModelCard]] = None
 
 
-def _get_model() -> Tuple[object, ModelCard]:
+def _get_model() -> Tuple[nn.Module, ModelCard]:
     """Load the model once per worker process and cache it."""
     global _model_cache
     if _model_cache is None:
@@ -80,6 +82,10 @@ def classify_document(document_id: str, model_metadata_id: str) -> None:
             doc = doc_repo.get_by_id(doc_uuid)
             if doc is None:
                 raise ClassificationError(f"Document {document_id} not found")
+            if doc.blob_key is None:
+                raise ClassificationError(
+                    f"Document {document_id} has no stored blob"
+                )
 
             result, overlay_png = _run_pipeline(doc.blob_key)
 
