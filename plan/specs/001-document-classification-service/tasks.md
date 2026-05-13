@@ -234,12 +234,12 @@
   - **Acceptance criteria**: API and workers can share the image while using distinct commands and read-only classifier asset mounts where appropriate.
 
 - [ ] T042 Define GitHub Actions lint and unit-test stages
-  - **Owner suggestion**: Member 4
+  - **Owner suggestion**: Member 1
   - **Files likely affected**: `.github/workflows/ci.yml`, `pyproject.toml`
   - **Acceptance criteria**: CI runs formatting/lint checks, static checks where configured, and unit tests without external services.
 
 - [ ] T043 Define GitHub Actions service-backed stages
-  - **Owner suggestion**: Member 4
+  - **Owner suggestion**: Member 1
   - **Files likely affected**: `.github/workflows/ci.yml`
   - **Acceptance criteria**: CI starts Postgres 16, Redis 7, MinIO, Vault dev mode, and Atmoz SFTP for migration, contract, integration, and worker tests.
 
