@@ -10,6 +10,7 @@ from typing import Any, Optional
 from sqlalchemy.orm import Session
 
 from app.db.models import AuditEvent
+from app.domain.audit import AuditEventRead
 from app.repositories.audit_events import AuditEventRepository
 
 
@@ -50,3 +51,46 @@ class AuditLogService:
             request_id=request_id,
         )
         return self._repo.create(event)
+
+    def list_events(
+        self,
+        actor_user_id: Optional[uuid.UUID] = None,
+        action: Optional[str] = None,
+        target_type: Optional[str] = None,
+        target_id: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[AuditEventRead]:
+        """Return audit events in reverse chronological order."""
+        events = self._repo.list(
+            actor_user_id=actor_user_id,
+            action=action,
+            target_type=target_type,
+            target_id=target_id,
+            limit=limit,
+            offset=offset,
+        )
+        return [self._to_read_model(event) for event in events]
+
+    @staticmethod
+    def _to_read_model(event: AuditEvent) -> AuditEventRead:
+        target = None
+        if event.target_type and event.target_id:
+            target = f"{event.target_type}:{event.target_id}"
+        elif event.target_type:
+            target = event.target_type
+        elif event.target_id:
+            target = event.target_id
+
+        return AuditEventRead(
+            id=event.id,
+            actor_id=event.actor_user_id,
+            action=event.action,
+            target=target,
+            target_type=event.target_type,
+            target_id=event.target_id,
+            outcome=event.outcome,
+            timestamp=event.created_at,
+            metadata=event.details_json,
+            request_id=event.request_id,
+        )

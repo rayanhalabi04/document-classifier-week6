@@ -32,7 +32,7 @@ def test_expected_route_prefixes_exist() -> None:
         "/roles",
         "/batches",
         "/predictions",
-        "/audit",
+        "/audit-events",
         "/health",
     ]
 
@@ -42,7 +42,12 @@ def test_expected_route_prefixes_exist() -> None:
         ), f"Missing route prefix: {prefix}"
 
 
-def test_health_endpoints_exist_and_work() -> None:
+def test_health_endpoints_exist_and_work(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.api.health.run_api_readiness_checks",
+        lambda session_factory: [],
+    )
+
     live_response = client.get("/health/live")
     ready_response = client.get("/health/ready")
 
@@ -50,7 +55,7 @@ def test_health_endpoints_exist_and_work() -> None:
     assert live_response.json() == {"status": "ok"}
 
     assert ready_response.status_code == 200
-    assert ready_response.json()["status"] == "not_ready"
+    assert ready_response.json()["status"] == "ready"
 
 
 def test_api_does_not_expose_inference_endpoints() -> None:
