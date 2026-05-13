@@ -1,8 +1,8 @@
 """Unit tests for app/classifier/loader.py (T002)."""
 
+import pytest
 import torch
 import torch.nn as nn
-import pytest
 
 from app.classifier.loader import build_model, dry_run_validation
 from app.classifier.validation import ClassifierValidationError

@@ -5,12 +5,12 @@ import json
 from pathlib import Path
 
 from app.domain.model_metadata import (
+    RVL_CDIP_LABELS,
+    SUPPORTED_ARCHITECTURES,
     ModelCard,
     ModelCardArtifact,
     ModelCardInput,
     ModelCardMetrics,
-    RVL_CDIP_LABELS,
-    SUPPORTED_ARCHITECTURES,
 )
 
 

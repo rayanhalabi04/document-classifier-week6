@@ -26,7 +26,6 @@ from app.infra.db import get_session
 from app.infra.vault import VaultAdapter
 from app.repositories.users import UserRepository
 
-
 JWT_LIFETIME_SECONDS = 60 * 60
 _jwt_secret: str | None = None
 

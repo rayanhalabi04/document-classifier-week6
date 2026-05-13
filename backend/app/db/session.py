@@ -8,7 +8,7 @@ dependency from app.infra.db for request-scoped sessions.
 import os
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",

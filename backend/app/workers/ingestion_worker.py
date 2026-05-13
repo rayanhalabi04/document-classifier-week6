@@ -28,8 +28,8 @@ from datetime import datetime, timezone
 from app.db.session import SessionFactory
 from app.domain.errors import (
     DuplicateDocumentError,
-    UnsupportedFileTypeError,
     StorageError,
+    UnsupportedFileTypeError,
 )
 from app.infra.sftp import SFTPAdapter, SFTPFileInfo
 from app.repositories.model_metadata import ModelMetadataRepository

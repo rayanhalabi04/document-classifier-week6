@@ -14,7 +14,6 @@ from app.classifier.validation import (
 )
 from app.domain.model_metadata import RVL_CDIP_LABELS
 
-
 # ---------------------------------------------------------------------------
 # load_and_validate_model_card
 # ---------------------------------------------------------------------------

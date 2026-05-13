@@ -3,18 +3,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api import (
-    audit,
-    auth,
-    batches,
-    health,
-    predictions,
-    roles,
-    users,
-)
+from app.api import audit, auth, batches, health, predictions, roles, users
+from app.db.session import SessionFactory
 from app.infra.cache import init_cache
 from app.services.auth import load_jwt_secret
-from app.db.session import SessionFactory
 from app.services.startup_authorization import validate_authorization_startup
 
 

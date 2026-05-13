@@ -28,9 +28,9 @@ def check_postgres(session_factory) -> None:
         raise StartupValidationError("Postgres connection failed.") from exc
 
     try:
+        from alembic.config import Config
         from alembic.runtime.migration import MigrationContext
         from alembic.script import ScriptDirectory
-        from alembic.config import Config
 
         cfg = Config("alembic.ini")
         script = ScriptDirectory.from_config(cfg)

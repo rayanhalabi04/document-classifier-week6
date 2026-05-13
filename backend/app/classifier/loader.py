@@ -1,15 +1,15 @@
 """Loads a ConvNeXt Tiny/Small classifier from a state_dict checkpoint."""
 
+from pathlib import Path
+
 import torch
 import torch.nn as nn
-from pathlib import Path
 from torchvision.models import (
-    convnext_tiny,
-    convnext_small,
-    ConvNeXt_Tiny_Weights,
     ConvNeXt_Small_Weights,
+    ConvNeXt_Tiny_Weights,
+    convnext_small,
+    convnext_tiny,
 )
-
 
 from app.classifier.validation import ClassifierValidationError
 from app.domain.model_metadata import ModelCard
