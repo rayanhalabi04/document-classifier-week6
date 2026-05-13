@@ -16,6 +16,7 @@ class PredictionRead(BaseModel):
     source_filename: str | None = None
     predicted_class: str
     top1_confidence: float
+    class_scores: dict | None = None
     review_eligible: bool
     review_label: str | None = None
     reviewed_by_user_id: uuid.UUID | None = None

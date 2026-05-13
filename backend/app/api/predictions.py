@@ -1,8 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Any
+from io import BytesIO
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -15,7 +17,9 @@ from app.domain.errors import (
 )
 from app.domain.predictions import PredictionRead
 from app.domain.roles import Action, Resource
+from app.db.models import OverlayAsset, Prediction
 from app.infra.db import get_session
+from app.infra.minio import MinIOAdapter
 from app.repositories.predictions import PredictionRepository
 from app.services.prediction_review import PredictionReviewService
 
@@ -50,14 +54,24 @@ def get_prediction_review_service(
     return PredictionReviewService(session)
 
 
-@router.get("/recent")
+@router.get("/recent", response_model=list[PredictionRead])
 async def list_recent_predictions(
-    user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
-) -> None:
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Recent predictions endpoint is not implemented yet.",
-    )
+    _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
+    session: Session = Depends(get_session),
+    review_eligible: bool | None = Query(None),
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> list[PredictionRead]:
+    repo = PredictionRepository(session)
+    if review_eligible is True:
+        predictions = repo.list_review_eligible(limit=limit, offset=offset)
+    else:
+        predictions = repo.list_recent(limit=limit, offset=offset)
+
+    return [
+        _prediction_to_read(p, repo.get_overlay_by_prediction(p.id))
+        for p in predictions
+    ]
 
 
 @router.get("/{prediction_id}", response_model=PredictionRead)
@@ -73,8 +87,33 @@ async def get_prediction(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Prediction not found.",
         )
+    return _prediction_to_read(prediction, repo.get_overlay_by_prediction(prediction_id))
 
+
+@router.get("/{prediction_id}/overlay")
+async def get_prediction_overlay(
+    prediction_id: uuid.UUID,
+    _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
+    session: Session = Depends(get_session),
+) -> StreamingResponse:
+    repo = PredictionRepository(session)
     overlay = repo.get_overlay_by_prediction(prediction_id)
+    if overlay is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Overlay not found.",
+        )
+
+    minio = MinIOAdapter()
+    data = minio.download_file(overlay.blob_bucket, overlay.blob_key)
+    return StreamingResponse(BytesIO(data), media_type="image/png")
+
+
+def _prediction_to_read(
+    prediction: Prediction,
+    overlay: OverlayAsset | None,
+) -> PredictionRead:
+    """Build a PredictionRead response from ORM objects."""
     source_filename = None
     if prediction.document is not None:
         source_filename = prediction.document.source_filename
@@ -85,6 +124,7 @@ async def get_prediction(
         source_filename=source_filename,
         predicted_class=prediction.predicted_class,
         top1_confidence=prediction.top1_confidence,
+        class_scores=prediction.class_scores_json,
         review_eligible=prediction.review_eligible,
         review_label=prediction.review_label,
         reviewed_by_user_id=prediction.reviewed_by_user_id,

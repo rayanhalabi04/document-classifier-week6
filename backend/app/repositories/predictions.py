@@ -39,6 +39,18 @@ class PredictionRepository:
         )
         return list(self.session.execute(stmt).scalars().all())
 
+    def list_recent(
+        self, limit: int = 50, offset: int = 0
+    ) -> list[Prediction]:
+        """Return the most recent predictions, newest first."""
+        stmt = (
+            select(Prediction)
+            .order_by(Prediction.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(self.session.execute(stmt).scalars().all())
+
     def create(self, prediction: Prediction) -> Prediction:
         self.session.add(prediction)
         self.session.flush()
