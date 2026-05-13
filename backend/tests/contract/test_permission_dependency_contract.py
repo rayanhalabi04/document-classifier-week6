@@ -65,5 +65,5 @@ def test_protected_route_accepts_user_when_casbin_allows_permission() -> None:
     finally:
         app.dependency_overrides.clear()
 
-    assert response.status_code == 501
-    assert response.json()["detail"] == "Batch listing is not implemented yet."
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
