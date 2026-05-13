@@ -13,8 +13,10 @@ from app.domain.errors import (
     PredictionNotFound,
     ReviewNotEligible,
 )
+from app.domain.predictions import PredictionRead
 from app.domain.roles import Action, Resource
 from app.infra.db import get_session
+from app.repositories.predictions import PredictionRepository
 from app.services.prediction_review import PredictionReviewService
 
 router = APIRouter(prefix="/predictions", tags=["predictions"])
@@ -58,14 +60,37 @@ async def list_recent_predictions(
     )
 
 
-@router.get("/{prediction_id}")
+@router.get("/{prediction_id}", response_model=PredictionRead)
 async def get_prediction(
-    prediction_id: str,
-    user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
-) -> None:
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail=f"Prediction detail for {prediction_id} is not implemented yet.",
+    prediction_id: uuid.UUID,
+    _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
+    session: Session = Depends(get_session),
+) -> PredictionRead:
+    repo = PredictionRepository(session)
+    prediction = repo.get_by_id(prediction_id)
+    if prediction is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Prediction not found.",
+        )
+
+    overlay = repo.get_overlay_by_prediction(prediction_id)
+    source_filename = None
+    if prediction.document is not None:
+        source_filename = prediction.document.source_filename
+
+    return PredictionRead(
+        id=prediction.id,
+        document_id=prediction.document_id,
+        source_filename=source_filename,
+        predicted_class=prediction.predicted_class,
+        top1_confidence=prediction.top1_confidence,
+        review_eligible=prediction.review_eligible,
+        review_label=prediction.review_label,
+        reviewed_by_user_id=prediction.reviewed_by_user_id,
+        reviewed_at=prediction.reviewed_at,
+        overlay_blob_key=overlay.blob_key if overlay else None,
+        created_at=prediction.created_at,
     )
 
 
