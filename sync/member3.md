@@ -11,7 +11,7 @@
 - Healthchecks on postgres (pg_isready), redis (ping), minio (health/live), vault (status)
 - Shared bridge network `classifier-net`
 - Persisted volumes: postgres_data, minio_data, vault_data, pgadmin_data
-- Classifier assets mounted read-only (`backend/models/classifier.pt`, `model_card.json`)
+- Classifier assets mounted read-only (`backend/app/classifier/models/classifier.pt`, `model_card.json`)
 - SFTP uses bind mount (`./sftp_drop`) — no manual chown needed
 - pgAdmin auto-registers server via `pgadmin_servers.json`
 - `backend/.env.example` — 16 environment variables covering all services
@@ -87,6 +87,7 @@ creates all 10 tables without errors.
 
 ### Extras
 - `scripts/seed_vault.py` — seeds all 5 Vault paths, verifies them
+- `scripts/seed_users.py` — creates initial admin user for local development
 - `Makefile` — 12 targets
 - `tests/integration/test_adapters_live.py` — 3 live tests against real Docker services
 - pgAdmin at `localhost:5050` with pre-configured server
@@ -113,8 +114,8 @@ Tested with golden-set TIFF (135KB). All startup checks pass. API healthy on :80
 
 ## Blocked by
 
-- **Member 4** — needs to implement inference worker (T028-T030) + classifier (T001-T006) to complete end-to-end flow
-- Documentation tasks blocked on M4's work
+- **No blockers** — all 3 teammates have shipped their code. Full end-to-end pipeline is possible.
+- Documentation tasks (T039, T047, T049) are now unblocked.
 
 ---
 
