@@ -385,7 +385,6 @@ jobs:
             -e ".[dev]"
 
       - name: Compose smoke — bring up service stack
-        working-directory: .
         run: |
           cat > .env <<'EOF'
           POSTGRES_USER=postgres
@@ -410,13 +409,12 @@ jobs:
           SFTP_DROP_DIR=drop
           JWT_SECRET=ci-jwt-secret
           EOF
-          docker compose up -d postgres redis minio vault sftp
+          docker compose -f ../docker-compose.yml up -d postgres redis minio vault sftp
 
       - name: Compose smoke — wait for service readiness
-        working-directory: .
         run: |
-          timeout 120 bash -c 'until docker compose exec -T postgres pg_isready -U postgres -d document_classifier; do sleep 2; done'
-          timeout 120 bash -c 'until docker compose exec -T redis redis-cli ping | grep -q PONG; do sleep 2; done'
+          timeout 120 bash -c 'until docker compose -f ../docker-compose.yml exec -T postgres pg_isready -U postgres -d document_classifier; do sleep 2; done'
+          timeout 120 bash -c 'until docker compose -f ../docker-compose.yml exec -T redis redis-cli ping | grep -q PONG; do sleep 2; done'
           timeout 120 bash -c 'until curl -fsS http://localhost:9000/minio/health/live >/dev/null; do sleep 2; done'
           timeout 120 bash -c 'until curl -fsS http://localhost:8200/v1/sys/health >/dev/null; do sleep 2; done'
           timeout 120 bash -c 'until (echo > /dev/tcp/127.0.0.1/2222) >/dev/null 2>&1; do sleep 2; done'
@@ -426,10 +424,8 @@ jobs:
 
       - name: Show service logs on failure
         if: failure()
-        working-directory: .
-        run: docker compose logs postgres redis minio vault sftp
+        run: docker compose -f ../docker-compose.yml logs postgres redis minio vault sftp
 
       - name: Stop service dependencies
         if: always()
-        working-directory: .
-        run: docker compose down -v
+        run: docker compose -f ../docker-compose.yml down -v
