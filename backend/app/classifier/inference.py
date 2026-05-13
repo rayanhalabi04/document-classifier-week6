@@ -12,9 +12,9 @@ from app.domain.model_metadata import ModelCard
 class InferenceResult:
     """Output of a single inference pass."""
 
-    predicted_class: str          # top-1 RVL-CDIP label
-    predicted_label_index: int    # 0–15
-    top1_confidence: float        # softmax probability of top-1 class
+    predicted_class: str  # top-1 RVL-CDIP label
+    predicted_label_index: int  # 0–15
+    top1_confidence: float  # softmax probability of top-1 class
     class_scores: dict[str, float]  # full softmax distribution, keyed by label
 
 
@@ -47,8 +47,7 @@ def run_inference(
     top1_conf = float(probs[top1_idx].item())
 
     class_scores = {
-        label: float(probs[i].item())
-        for i, label in enumerate(model_card.classes)
+        label: float(probs[i].item()) for i, label in enumerate(model_card.classes)
     }
 
     return InferenceResult(

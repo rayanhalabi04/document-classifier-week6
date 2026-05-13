@@ -16,10 +16,12 @@ logger = logging.getLogger(__name__)
 # API readiness checks
 # ---------------------------------------------------------------------------
 
+
 def check_postgres(session_factory) -> None:
     """Verify Postgres is reachable and Alembic head migration is applied."""
     try:
         from sqlalchemy import text
+
         with session_factory() as session:
             session.execute(text("SELECT 1"))
     except Exception as exc:
@@ -51,6 +53,7 @@ def check_redis() -> None:
     """Verify Redis 7 is reachable."""
     try:
         from app.infra.redis import get_redis_client
+
         client = get_redis_client()
         client.ping()
     except Exception as exc:
@@ -61,6 +64,7 @@ def check_minio_buckets() -> None:
     """Verify MinIO originals and overlays buckets exist or can be created."""
     try:
         from app.infra.minio import ensure_buckets
+
         ensure_buckets()
     except Exception as exc:
         raise StartupValidationError("MinIO bucket bootstrap failed.") from exc
@@ -70,6 +74,7 @@ def check_vault() -> None:
     """Verify Vault dev mode KV v2 path is reachable and required secrets exist."""
     try:
         from app.infra.vault import validate_required_secrets
+
         validate_required_secrets()
     except Exception as exc:
         raise StartupValidationError("Vault secrets validation failed.") from exc
@@ -132,19 +137,24 @@ def run_api_readiness_checks(session_factory) -> list[str]:
 # Ingestion worker readiness checks
 # ---------------------------------------------------------------------------
 
+
 def check_sftp() -> None:
     """Verify SFTP connection and vendor drop directory is readable."""
     try:
         from app.infra.sftp import check_connection
+
         check_connection()
     except Exception as exc:
-        raise StartupValidationError("SFTP connection or directory check failed.") from exc
+        raise StartupValidationError(
+            "SFTP connection or directory check failed."
+        ) from exc
 
 
 def check_minio_originals_writable() -> None:
     """Verify the originals bucket is writable."""
     try:
         from app.infra.minio import check_originals_writable
+
         check_originals_writable()
     except Exception as exc:
         raise StartupValidationError("MinIO originals bucket is not writable.") from exc
@@ -154,6 +164,7 @@ def check_rq_available() -> None:
     """Verify the Redis Queue enqueue path is available."""
     try:
         from app.infra.queue import check_queue_health
+
         check_queue_health()
     except Exception as exc:
         raise StartupValidationError("Redis Queue is not available.") from exc
@@ -181,10 +192,12 @@ def run_ingestion_worker_checks() -> list[str]:
 # Inference worker readiness checks
 # ---------------------------------------------------------------------------
 
+
 def check_classifier_assets() -> None:
     """Verify classifier.pt and model_card.json exist, parse, and match checksums."""
     try:
         from app.classifier.validation import validate_classifier_assets
+
         validate_classifier_assets()
     except Exception as exc:
         raise StartupValidationError("Classifier asset validation failed.") from exc

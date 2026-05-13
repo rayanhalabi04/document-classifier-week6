@@ -18,9 +18,7 @@ class ClassificationJobRepository:
         return self.session.execute(stmt).scalar_one_or_none()
 
     def get_by_rq_job_id(self, rq_job_id: str) -> Optional[ClassificationJob]:
-        stmt = select(ClassificationJob).where(
-            ClassificationJob.rq_job_id == rq_job_id
-        )
+        stmt = select(ClassificationJob).where(ClassificationJob.rq_job_id == rq_job_id)
         return self.session.execute(stmt).scalar_one_or_none()
 
     def list_by_document(self, document_id: uuid.UUID) -> list[ClassificationJob]:

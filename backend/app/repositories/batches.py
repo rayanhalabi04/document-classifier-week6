@@ -24,10 +24,7 @@ class BatchRepository:
         offset: int = 0,
     ) -> list[Batch]:
         stmt = (
-            select(Batch)
-            .order_by(Batch.created_at.desc())
-            .limit(limit)
-            .offset(offset)
+            select(Batch).order_by(Batch.created_at.desc()).limit(limit).offset(offset)
         )
         if status is not None:
             stmt = stmt.where(Batch.status == status)

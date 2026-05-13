@@ -23,6 +23,7 @@ def _delete(key: str) -> None:
     """
     try:
         from app.infra.cache import delete_cache_key
+
         delete_cache_key(key)
     except Exception as exc:
         raise CacheInvalidationError(f"Failed to delete cache key '{key}'") from exc

@@ -59,9 +59,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
-    last_login_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True)
-    )
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     role_assignments: Mapped[List["RoleAssignment"]] = relationship(
         "RoleAssignment",

@@ -71,9 +71,7 @@ class VaultAdapter:
             ) from exc
 
         if not authenticated:
-            raise VaultConnectionError(
-                f"Vault authentication failed at {self._url}"
-            )
+            raise VaultConnectionError(f"Vault authentication failed at {self._url}")
 
     def read_secret(self, path: str, key: str) -> str:
         """Read a single secret value from KV v2 by path and key.
@@ -106,9 +104,7 @@ class VaultAdapter:
 
         data = response.get("data", {}).get("data", {})
         if key not in data:
-            raise VaultKeyNotFound(
-                f"Key '{key}' not found in secret path '{path}'"
-            )
+            raise VaultKeyNotFound(f"Key '{key}' not found in secret path '{path}'")
 
         return str(data[key])
 
@@ -148,6 +144,4 @@ def validate_required_secrets() -> None:
         if not ok
     ]
     if missing:
-        raise VaultConnectionError(
-            f"Missing Vault secrets: {', '.join(missing)}"
-        )
+        raise VaultConnectionError(f"Missing Vault secrets: {', '.join(missing)}")

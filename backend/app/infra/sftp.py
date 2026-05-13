@@ -146,9 +146,7 @@ class SFTPAdapter:
                 f"Permission denied listing directory '{remote_dir}'"
             )
         except FileNotFoundError:
-            raise SFTPFileError(
-                f"Directory not found: '{remote_dir}'"
-            )
+            raise SFTPFileError(f"Directory not found: '{remote_dir}'")
         except OSError as exc:
             raise SFTPFileError(
                 f"Failed to list directory '{remote_dir}': {exc}"
@@ -186,17 +184,13 @@ class SFTPAdapter:
         try:
             attr = self._sftp.stat(remote_path)
         except FileNotFoundError:
-            raise SFTPFileError(
-                f"File not found: '{remote_path}'"
-            )
+            raise SFTPFileError(f"File not found: '{remote_path}'")
         except PermissionError:
             raise SFTPPermissionError(
                 f"Permission denied accessing file: '{remote_path}'"
             )
         except OSError as exc:
-            raise SFTPFileError(
-                f"Failed to stat file '{remote_path}': {exc}"
-            ) from exc
+            raise SFTPFileError(f"Failed to stat file '{remote_path}': {exc}") from exc
 
         filename = remote_path.rsplit("/", 1)[-1]
         return SFTPFileInfo(
@@ -226,17 +220,13 @@ class SFTPAdapter:
         try:
             return self._sftp.open(remote_path, "rb")
         except FileNotFoundError:
-            raise SFTPFileError(
-                f"File not found: '{remote_path}'"
-            )
+            raise SFTPFileError(f"File not found: '{remote_path}'")
         except PermissionError:
             raise SFTPPermissionError(
                 f"Permission denied reading file: '{remote_path}'"
             )
         except OSError as exc:
-            raise SFTPFileError(
-                f"Failed to open file '{remote_path}': {exc}"
-            ) from exc
+            raise SFTPFileError(f"Failed to open file '{remote_path}': {exc}") from exc
 
     def read_file_content(self, remote_path: str) -> bytes:
         """Read the full content of a remote file.
@@ -273,6 +263,7 @@ class SFTPAdapter:
     def _is_regular_file(mode: int) -> bool:
         """Check if a stat mode represents a regular file."""
         import stat
+
         return stat.S_ISREG(mode)
 
 
@@ -283,6 +274,7 @@ def check_connection() -> None:
     Connects, lists the drop directory, and confirms it is accessible.
     """
     import os
+
     host = os.environ.get("SFTP_HOST", "sftp")
     port = int(os.environ.get("SFTP_PORT", "22"))
     user = os.environ.get("SFTP_USER", "vendor")

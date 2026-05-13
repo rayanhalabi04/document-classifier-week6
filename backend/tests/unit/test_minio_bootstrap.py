@@ -76,7 +76,9 @@ class TestEnsureBucketsExist:
 
         mock_minio_client.make_bucket.assert_called_once_with(OVERLAYS_BUCKET)
 
-    def test_raises_minio_connection_error_on_unreachable(self, minio_adapter, mock_minio_client):
+    def test_raises_minio_connection_error_on_unreachable(
+        self, minio_adapter, mock_minio_client
+    ):
         """Given MinIO is unreachable, raises MinIOConnectionError."""
         mock_minio_client.bucket_exists.side_effect = _make_s3_error(
             "SlowDown", "server busy"
@@ -85,7 +87,9 @@ class TestEnsureBucketsExist:
         with pytest.raises(MinIOConnectionError):
             minio_adapter.ensure_buckets_exist()
 
-    def test_raises_permission_error_on_access_denied(self, minio_adapter, mock_minio_client):
+    def test_raises_permission_error_on_access_denied(
+        self, minio_adapter, mock_minio_client
+    ):
         """Given access is denied when checking buckets, raises MinIOPermissionError."""
         mock_minio_client.bucket_exists.side_effect = _make_s3_error(
             "AccessDenied", "forbidden"
@@ -118,7 +122,9 @@ class TestUploadFile:
         assert call_kwargs["content_type"] == "image/tiff"
         assert call_kwargs["length"] == 100
 
-    def test_raises_permission_error_on_upload_denied(self, minio_adapter, mock_minio_client):
+    def test_raises_permission_error_on_upload_denied(
+        self, minio_adapter, mock_minio_client
+    ):
         """Given write access is denied, raises MinIOPermissionError."""
         mock_minio_client.put_object.side_effect = _make_s3_error(
             "AccessDenied", "forbidden"
@@ -132,7 +138,9 @@ class TestUploadFile:
                 content_type="image/tiff",
             )
 
-    def test_raises_bucket_error_on_nonexistent_bucket(self, minio_adapter, mock_minio_client):
+    def test_raises_bucket_error_on_nonexistent_bucket(
+        self, minio_adapter, mock_minio_client
+    ):
         """Given the bucket does not exist, raises MinIOBucketError."""
         mock_minio_client.put_object.side_effect = _make_s3_error(
             "NoSuchBucket", "bucket missing"
@@ -165,7 +173,9 @@ class TestDownloadFile:
             object_name="batch-1/doc.tiff",
         )
 
-    def test_raises_file_not_found_on_missing_key(self, minio_adapter, mock_minio_client):
+    def test_raises_file_not_found_on_missing_key(
+        self, minio_adapter, mock_minio_client
+    ):
         """Given a nonexistent key, raises MinIOFileNotFoundError."""
         mock_minio_client.get_object.side_effect = _make_s3_error(
             "NoSuchKey", "not found"
@@ -196,7 +206,9 @@ class TestFileExists:
 
         assert result is False
 
-    def test_raises_connection_error_on_unreachable(self, minio_adapter, mock_minio_client):
+    def test_raises_connection_error_on_unreachable(
+        self, minio_adapter, mock_minio_client
+    ):
         """Given MinIO is unreachable, raises MinIOConnectionError."""
         mock_minio_client.stat_object.side_effect = _make_s3_error(
             "ServiceUnavailable", "down"
@@ -211,6 +223,8 @@ class TestMinIOAdapterInit:
 
     def test_raises_connection_error_when_client_creation_fails(self):
         """When the MinIO client cannot be created, raises MinIOConnectionError."""
-        with patch("app.infra.minio.Minio", side_effect=Exception("connection refused")):
+        with patch(
+            "app.infra.minio.Minio", side_effect=Exception("connection refused")
+        ):
             with pytest.raises(MinIOConnectionError):
                 MinIOAdapter()

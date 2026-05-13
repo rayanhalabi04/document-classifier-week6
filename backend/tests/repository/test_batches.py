@@ -29,7 +29,9 @@ class TestGetById:
 
 class TestList:
     def test_returns_all_batches_without_filter(self, mock_session, sample_batch):
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [sample_batch]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            sample_batch
+        ]
         repo = BatchRepository(mock_session)
 
         result = repo.list()
@@ -45,7 +47,9 @@ class TestList:
         assert result == []
 
     def test_accepts_status_filter(self, mock_session, sample_batch):
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [sample_batch]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            sample_batch
+        ]
         repo = BatchRepository(mock_session)
 
         result = repo.list(status=BatchStatus.processing)

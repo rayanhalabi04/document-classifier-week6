@@ -58,7 +58,9 @@ class MinIOAdapter:
         """
         self._endpoint = endpoint or os.environ.get("MINIO_ENDPOINT", "localhost:9000")
         self._access_key = access_key or os.environ.get("MINIO_ROOT_USER", "minioadmin")
-        self._secret_key = secret_key or os.environ.get("MINIO_ROOT_PASSWORD", "minioadmin")
+        self._secret_key = secret_key or os.environ.get(
+            "MINIO_ROOT_PASSWORD", "minioadmin"
+        )
         self._secure = secure
 
         try:
@@ -165,9 +167,7 @@ class MinIOAdapter:
         except S3Error as exc:
             if exc.code == "NoSuchKey":
                 return False
-            self._raise_typed_error(
-                f"Failed to stat '{key}' in '{bucket}'", exc
-            )
+            self._raise_typed_error(f"Failed to stat '{key}' in '{bucket}'", exc)
             return False
 
     def _ensure_bucket(self, bucket: str) -> None:
@@ -184,18 +184,14 @@ class MinIOAdapter:
         try:
             exists = self._client.bucket_exists(bucket)
         except S3Error as exc:
-            self._raise_typed_error(
-                f"Failed to check bucket '{bucket}'", exc
-            )
+            self._raise_typed_error(f"Failed to check bucket '{bucket}'", exc)
             return
 
         if not exists:
             try:
                 self._client.make_bucket(bucket)
             except S3Error as exc:
-                self._raise_typed_error(
-                    f"Failed to create bucket '{bucket}'", exc
-                )
+                self._raise_typed_error(f"Failed to create bucket '{bucket}'", exc)
 
     @staticmethod
     def _raise_typed_error(msg: str, exc: S3Error) -> None:

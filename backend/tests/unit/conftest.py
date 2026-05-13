@@ -31,9 +31,7 @@ def valid_model_card_dict() -> dict:
             "size_bytes": 111396999,
             "path": "app/classifier/models/classifier.pt",
         },
-        "metrics": {
-            "full_test": {"top1": 0.6151, "top5": 0.8992, "n": 40000}
-        },
+        "metrics": {"full_test": {"top1": 0.6151, "top5": 0.8992, "n": 40000}},
         "refuse_to_start_threshold": 0.6,
     }
 

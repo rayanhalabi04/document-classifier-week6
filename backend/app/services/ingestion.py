@@ -12,8 +12,19 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
-from app.db.models import Batch, BatchStatus, ClassificationJob, Document, IngestionStatus, JobStatus
-from app.domain.errors import DuplicateDocumentError, StorageError, UnsupportedFileTypeError
+from app.db.models import (
+    Batch,
+    BatchStatus,
+    ClassificationJob,
+    Document,
+    IngestionStatus,
+    JobStatus,
+)
+from app.domain.errors import (
+    DuplicateDocumentError,
+    StorageError,
+    UnsupportedFileTypeError,
+)
 from app.repositories.batches import BatchRepository
 from app.repositories.documents import DocumentRepository
 from app.repositories.jobs import ClassificationJobRepository
@@ -122,7 +133,9 @@ class IngestionService:
         try:
             invalidate_batch_list()
         except Exception:
-            logger.warning("Cache invalidation failed after ingestion of %s", document.id)
+            logger.warning(
+                "Cache invalidation failed after ingestion of %s", document.id
+            )
 
         return document
 
@@ -159,6 +172,7 @@ class IngestionService:
     def _get_or_create_batch(self, source_path: str) -> Batch:
         """Use source directory as the batch source identifier."""
         import os
+
         source_dir = os.path.dirname(source_path) or "/"
         batches = self._batches.list(status=BatchStatus.processing, limit=1)
         if batches:
@@ -178,13 +192,17 @@ class IngestionService:
         """Upload TIFF bytes to MinIO and return (bucket, key)."""
         try:
             from app.infra.minio import upload_original
+
             return upload_original(document_id, data)
         except Exception as exc:
-            raise StorageError(f"MinIO upload failed for document {document_id}") from exc
+            raise StorageError(
+                f"MinIO upload failed for document {document_id}"
+            ) from exc
 
     def _enqueue_classification(
         self, document_id: uuid.UUID, model_metadata_id: uuid.UUID
     ) -> str:
         """Enqueue an RQ classification job and return the RQ job ID."""
         from app.infra.queue import enqueue_classification_job
+
         return enqueue_classification_job(document_id, model_metadata_id)

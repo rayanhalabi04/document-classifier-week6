@@ -7,27 +7,25 @@ from typing import Optional
 # This ordering is fixed by train.txt / val.txt / test.txt from aharley/rvl_cdip
 # and must match the model's output logit indices exactly.
 RVL_CDIP_LABELS: list[str] = [
-    "letter",                 # 0
-    "form",                   # 1
-    "email",                  # 2
-    "handwritten",            # 3
-    "advertisement",          # 4
-    "scientific report",      # 5
-    "scientific publication", # 6
-    "specification",          # 7
-    "file folder",            # 8
-    "news article",           # 9
-    "budget",                 # 10
-    "invoice",                # 11
-    "presentation",           # 12
-    "questionnaire",          # 13
-    "resume",                 # 14
-    "memo",                   # 15
+    "letter",  # 0
+    "form",  # 1
+    "email",  # 2
+    "handwritten",  # 3
+    "advertisement",  # 4
+    "scientific report",  # 5
+    "scientific publication",  # 6
+    "specification",  # 7
+    "file folder",  # 8
+    "news article",  # 9
+    "budget",  # 10
+    "invoice",  # 11
+    "presentation",  # 12
+    "questionnaire",  # 13
+    "resume",  # 14
+    "memo",  # 15
 ]
 
-SUPPORTED_ARCHITECTURES: frozenset[str] = frozenset(
-    {"convnext_tiny", "convnext_small"}
-)
+SUPPORTED_ARCHITECTURES: frozenset[str] = frozenset({"convnext_tiny", "convnext_small"})
 
 
 @dataclass(frozen=True)

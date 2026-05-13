@@ -17,7 +17,7 @@ DATABASE_URL = os.environ.get(
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,   # reconnect after idle timeout
+    pool_pre_ping=True,  # reconnect after idle timeout
     pool_size=5,
     max_overflow=10,
 )

@@ -50,7 +50,9 @@ def existing_role(target_id):
 
 
 def _patch_authz(authz_mock):
-    return patch("app.services.role_management.AuthorizationService", return_value=authz_mock)
+    return patch(
+        "app.services.role_management.AuthorizationService", return_value=authz_mock
+    )
 
 
 def _patch_casbin():
@@ -101,7 +103,9 @@ class TestAssignRole:
                 "app.repositories.roles.RoleRepository.has_active_role",
                 return_value=False,
             ),
-            patch("app.repositories.roles.RoleRepository.create", side_effect=lambda a: a),
+            patch(
+                "app.repositories.roles.RoleRepository.create", side_effect=lambda a: a
+            ),
             patch("app.services.cache_invalidation.invalidate_user_roles"),
         ):
             svc = RoleManagementService(mock_session)

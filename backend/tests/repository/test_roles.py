@@ -22,7 +22,9 @@ def active_role(user_id):
 
 class TestGetActiveRoles:
     def test_returns_active_roles_for_user(self, mock_session, active_role, user_id):
-        mock_session.execute.return_value.scalars.return_value.all.return_value = [active_role]
+        mock_session.execute.return_value.scalars.return_value.all.return_value = [
+            active_role
+        ]
         repo = RoleRepository(mock_session)
 
         result = repo.get_active_roles(user_id)
@@ -116,7 +118,9 @@ class TestRevoke:
 
 
 class TestRevokeAllForUser:
-    def test_sets_revoked_at_on_all_active_roles(self, mock_session, active_role, user_id):
+    def test_sets_revoked_at_on_all_active_roles(
+        self, mock_session, active_role, user_id
+    ):
         role2 = MagicMock(spec=RoleAssignment)
         role2.revoked_at = None
         mock_session.execute.return_value.scalars.return_value.all.return_value = [

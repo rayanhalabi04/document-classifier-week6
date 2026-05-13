@@ -100,7 +100,9 @@ class TestListFiles:
         assert len(result) == 1
         assert result[0].filename == "doc.tiff"
 
-    def test_raises_permission_error_on_permission_denied(self, sftp_adapter, mock_sftp):
+    def test_raises_permission_error_on_permission_denied(
+        self, sftp_adapter, mock_sftp
+    ):
         """Given a directory without read access, raises SFTPPermissionError."""
         mock_sftp.listdir_attr.side_effect = PermissionError("permission denied")
 
@@ -209,7 +211,9 @@ class TestSFTPAdapterInit:
     def test_raises_connection_error_on_auth_failure(self):
         """Given bad credentials, raises SFTPConnectionError."""
         mock_transport = Mock()
-        mock_transport.connect.side_effect = __import__("paramiko").AuthenticationException("auth failed")
+        mock_transport.connect.side_effect = __import__(
+            "paramiko"
+        ).AuthenticationException("auth failed")
 
         with (
             patch("paramiko.Transport", return_value=mock_transport),
@@ -223,13 +227,13 @@ class TestSFTPAdapterInit:
 
     def test_raises_connection_error_when_used_without_context(self):
         """Using methods outside context manager raises SFTPConnectionError."""
-        adapter = SFTPAdapter(
-            host="sftp", port=22, username="vendor", password="pass"
-        )
+        adapter = SFTPAdapter(host="sftp", port=22, username="vendor", password="pass")
         with pytest.raises(SFTPConnectionError, match="context manager"):
             adapter.list_files("/tmp")
 
-    def test_handles_disappeared_file_between_list_and_read(self, sftp_adapter, mock_sftp):
+    def test_handles_disappeared_file_between_list_and_read(
+        self, sftp_adapter, mock_sftp
+    ):
         """File disappearing between list and read raises SFTPFileError."""
         mock_sftp.open.side_effect = FileNotFoundError("vanished")
 

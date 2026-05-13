@@ -56,7 +56,5 @@ class PredictionRepository:
     def get_overlay_by_prediction(
         self, prediction_id: uuid.UUID
     ) -> Optional[OverlayAsset]:
-        stmt = select(OverlayAsset).where(
-            OverlayAsset.prediction_id == prediction_id
-        )
+        stmt = select(OverlayAsset).where(OverlayAsset.prediction_id == prediction_id)
         return self.session.execute(stmt).scalar_one_or_none()

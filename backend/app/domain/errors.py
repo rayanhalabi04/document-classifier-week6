@@ -12,6 +12,7 @@ class AppError(Exception):
 
 # --- Ingestion ---
 
+
 class DuplicateDocumentError(AppError):
     """Raised when a document with the same checksum and path is already active."""
 
@@ -30,6 +31,7 @@ class SFTPError(AppError):
 
 # --- Classification ---
 
+
 class ClassificationError(AppError):
     """Raised when inference fails for a document."""
 
@@ -39,6 +41,7 @@ class ModelValidationError(AppError):
 
 
 # --- Prediction Review ---
+
 
 class PredictionNotFound(AppError):
     """Raised when a prediction ID does not exist."""
@@ -54,17 +57,20 @@ class InvalidReviewLabel(AppError):
 
 # --- Authorization ---
 
+
 class PermissionDenied(AppError):
     """Raised when a user lacks the required Casbin policy for an action."""
 
 
 # --- Startup ---
 
+
 class StartupValidationError(AppError):
     """Raised when a required dependency or asset is missing at startup."""
 
 
 # --- Cache ---
+
 
 class CacheInvalidationError(AppError):
     """Raised when a Redis cache deletion fails (non-fatal — Postgres remains authoritative)."""

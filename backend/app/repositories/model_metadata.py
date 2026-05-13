@@ -24,9 +24,7 @@ class ModelMetadataRepository:
 
     def get_by_classifier_checksum(self, checksum: str) -> Optional[ModelMetadata]:
         """Return metadata for an already-registered classifier file."""
-        stmt = select(ModelMetadata).where(
-            ModelMetadata.classifier_sha256 == checksum
-        )
+        stmt = select(ModelMetadata).where(ModelMetadata.classifier_sha256 == checksum)
         return self.session.execute(stmt).scalar_one_or_none()
 
     def create(self, metadata: ModelMetadata) -> ModelMetadata:
