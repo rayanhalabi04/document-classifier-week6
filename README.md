@@ -107,21 +107,26 @@ pytest tests/golden/
 ## Code Quality
 
 ```bash
-# Format
+# Format the full backend
 black .
 
-# Sort imports
+# Sort all backend imports
 isort .
 
-# Lint
+# Lint the full backend
 flake8 .
 
 # Type check
 mypy app/
 
-# Run all checks (same as CI)
-black --check . && isort --check-only . && flake8 . && mypy app/
+# Unit tests without coverage gates or external services
+pytest tests/unit -q -o addopts=''
 ```
+
+CI currently checks formatting and linting only on changed backend Python files so
+unrelated legacy formatting does not block pull requests. Full-repo formatting,
+linting, and type checking remain useful cleanup commands, but they are broader
+than the T042 CI gate.
 
 ---
 
