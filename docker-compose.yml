@@ -157,8 +157,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./backend/models/classifier.pt:/app/models/classifier.pt:ro
-      - ./backend/models/model_card.json:/app/models/model_card.json:ro
+      - ./backend/app/classifier/models/classifier.pt:/app/app/classifier/models/classifier.pt:ro
+      - ./backend/app/classifier/models/model_card.json:/app/app/classifier/models/model_card.json:ro
     networks:
       - classifier-net
 

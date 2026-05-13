@@ -120,7 +120,7 @@
     "size_bytes": 111396999,
     "format": "torch.save(state_dict)"
   },
-  "refuse_to_start_threshold": 0.85,
+  "refuse_to_start_threshold": 0.6,
   "environment": {
     "python": "3.12.13",
     "torch": "2.10.0+cu128",
