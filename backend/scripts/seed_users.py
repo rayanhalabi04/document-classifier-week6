@@ -57,6 +57,10 @@ def main() -> None:
         session.add(role)
         session.commit()
 
+        # Sync the role assignment to Casbin so authorization works
+        from app.infra.authz.casbin_enforcer import assign_role
+        assign_role(str(user.id), "admin")
+
         print(f"Created admin user: {ADMIN_EMAIL}")
         print("  Role: admin")
         print(f"  Password: {ADMIN_PASSWORD}")
