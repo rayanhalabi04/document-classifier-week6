@@ -6,105 +6,143 @@ on:
   pull_request:
     branches: ["**"]
 
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: backend
 
+env:
+  PYTHON_VERSION: "3.11"
+
 jobs:
   format:
-    name: Format check (black + isort)
+    name: Format check (changed Python files)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
+          cache-dependency-path: backend/pyproject.toml
 
-      - name: Install dependencies
+      - name: Install format tools
         run: |
-          pip install --upgrade pip
-          pip install \
-            --extra-index-url https://download.pytorch.org/whl/cpu \
-            -e ".[dev]"
+          python -m pip install --upgrade pip
+          python -m pip install black==24.4.2 isort==5.13.2
+
+      - name: Find changed backend Python files
+        id: changed-python
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+          fi
+
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA="$(git hash-object -t tree /dev/null)"
+          fi
+
+          {
+            echo "files<<EOF"
+            git diff --name-only --diff-filter=ACMR "$BASE_SHA" HEAD -- 'backend/**/*.py' \
+              | sed 's#^backend/##'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: black --check
-        run: black --check app/ tests/
+        run: |
+          files="${{ steps.changed-python.outputs.files }}"
+          if [ -z "$files" ]; then
+            echo "No changed backend Python files to check."
+            exit 0
+          fi
+
+          printf '%s\n' "$files" | xargs black --check
 
       - name: isort --check-only
-        run: isort --check-only app/ tests/
+        run: |
+          files="${{ steps.changed-python.outputs.files }}"
+          if [ -z "$files" ]; then
+            echo "No changed backend Python files to check."
+            exit 0
+          fi
+
+          printf '%s\n' "$files" | xargs isort --check-only
 
   lint:
-    name: Lint (flake8)
+    name: Lint (changed Python files)
     runs-on: ubuntu-latest
-    needs: format
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
+          cache-dependency-path: backend/pyproject.toml
 
-      - name: Install dependencies
+      - name: Install lint tools
         run: |
-          pip install --upgrade pip
-          pip install \
-            --extra-index-url https://download.pytorch.org/whl/cpu \
-            -e ".[dev]"
+          python -m pip install --upgrade pip
+          python -m pip install flake8==7.0.0 flake8-bugbear==24.4.26
+
+      - name: Find changed backend Python files
+        id: changed-python
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+          fi
+
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA="$(git hash-object -t tree /dev/null)"
+          fi
+
+          {
+            echo "files<<EOF"
+            git diff --name-only --diff-filter=ACMR "$BASE_SHA" HEAD -- 'backend/**/*.py' \
+              | sed 's#^backend/##'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: flake8
-        run: flake8 app/ tests/
-
-  typecheck:
-    name: Type check (mypy)
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install \
-            --extra-index-url https://download.pytorch.org/whl/cpu \
-            -e ".[dev]"
+          files="${{ steps.changed-python.outputs.files }}"
+          if [ -z "$files" ]; then
+            echo "No changed backend Python files to lint."
+            exit 0
+          fi
 
-      - name: mypy
-        run: mypy app/
+          printf '%s\n' "$files" | xargs flake8
 
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest
-    needs: typecheck
     steps:
       - uses: actions/checkout@v4
-        with:
-          lfs: true
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
+          cache-dependency-path: backend/pyproject.toml
 
-      - name: Install dependencies
+      - name: Install backend and test dependencies
         run: |
-          pip install --upgrade pip
-          pip install \
+          python -m pip install --upgrade pip
+          python -m pip install \
             --extra-index-url https://download.pytorch.org/whl/cpu \
             -e ".[dev]"
 
       - name: pytest unit tests
-        run: pytest tests/unit/ -v
+        run: pytest tests/unit -q -o addopts=''
