@@ -46,87 +46,61 @@
     "lr_head": 0.0001,
     "lr_backbone": 1e-05,
     "weight_decay": 0.05,
-    "epochs": 3,
+    "epochs": 4,
     "batch_size": 64,
     "warmup_frac": 0.05,
-    "train_fraction": 0.1,
-    "augmentation": "resize256+randomcrop224+randomaffine(deg=2,scale=0.97-1.03)+no_hflip",
+    "train_fraction": 0.5,
+    "augmentation": "resize256+randomcrop224+randomaffine(2\u00b0,0.97-1.03)+no_hflip",
     "amp": true,
-    "seed": 42,
-    "history": [
-      {
-        "epoch": 0,
-        "train_loss": 2.006587380482511,
-        "train_acc": 0.40515112680898946,
-        "val_top1": 0.560275,
-        "val_top5": 0.875825,
-        "epoch_seconds": 624.4534676074982
-      },
-      {
-        "epoch": 1,
-        "train_loss": 1.4633276089571783,
-        "train_acc": 0.5605601225268028,
-        "val_top1": 0.604,
-        "val_top5": 0.89525,
-        "epoch_seconds": 580.5876801013947
-      },
-      {
-        "epoch": 2,
-        "train_loss": 1.3925248651078548,
-        "train_acc": 0.5779701809770887,
-        "val_top1": 0.607975,
-        "val_top5": 0.89645,
-        "epoch_seconds": 564.2076125144958
-      }
-    ]
+    "seed": 42
   },
   "metrics": {
     "full_test": {
-      "top1": 0.6150653766344159,
-      "top5": 0.8991724793119829,
+      "top1": 0.7161929048226205,
+      "top5": 0.9358483962099052,
       "n": 39999
     },
     "golden_set": {
-      "top1": 0.1,
-      "top5": 0.4,
+      "top1": 0.76,
+      "top5": 0.94,
       "n": 50
     },
     "per_class_accuracy": {
-      "letter": 0.6047077922077922,
-      "form": 0.42697525937749403,
-      "email": 0.8350556438791733,
-      "handwritten": 0.8124012638230648,
-      "advertisement": 0.806361829025845,
-      "scientific report": 0.15252201761409126,
-      "scientific publication": 0.8004667444574096,
-      "specification": 0.5586569579288025,
-      "file folder": 0.9074000791452315,
-      "news article": 0.6865611043442956,
-      "budget": 0.48862275449101794,
-      "invoice": 0.5962858296326201,
-      "presentation": 0.5966251506629169,
-      "questionnaire": 0.44229979466119096,
-      "resume": 0.7394560504532913,
-      "memo": 0.36637239165329055
+      "letter": 0.6534090909090909,
+      "form": 0.5634477254588987,
+      "email": 0.8525437201907791,
+      "handwritten": 0.8593996840442338,
+      "advertisement": 0.831013916500994,
+      "scientific report": 0.4079263410728583,
+      "scientific publication": 0.8315830416180474,
+      "specification": 0.7580906148867314,
+      "file folder": 0.9204590423426988,
+      "news article": 0.7649208282582217,
+      "budget": 0.6207584830339321,
+      "invoice": 0.707710940654017,
+      "presentation": 0.6946564885496184,
+      "questionnaire": 0.6114989733059548,
+      "resume": 0.7780843515963737,
+      "memo": 0.591091492776886
     },
     "worst_class": {
       "name": "scientific report",
-      "accuracy": 0.15252201761409126
+      "accuracy": 0.4079263410728583
     }
   },
   "artifact": {
     "path": "app/classifier/models/classifier.pt",
-    "sha256": "f9cd7ea26cc2dc3b21ab6bc58fa5942292a7219937ffde7fbb3ff5c24b19a5e7",
-    "size_bytes": 111396999,
+    "sha256": "aa6cdf0800bc1de28967b7db173fc1b18cfa7a1310aa4ac0ff5bc55ae0ede6f7",
+    "size_bytes": 111397563,
     "format": "torch.save(state_dict)"
   },
-  "refuse_to_start_threshold": 0.6,
+  "refuse_to_start_threshold": 0.7,
   "environment": {
     "python": "3.12.13",
     "torch": "2.10.0+cu128",
     "torchvision": "0.25.0+cu128",
     "cuda": "12.8",
-    "gpu": "Tesla T4",
+    "gpu": "NVIDIA A100-SXM4-40GB",
     "platform": "Linux-6.6.122+-x86_64-with-glibc2.35"
   }
 }
