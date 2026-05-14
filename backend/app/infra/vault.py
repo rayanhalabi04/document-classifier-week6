@@ -23,11 +23,18 @@ class VaultKeyNotFound(VaultError):
     """Raised when a requested key does not exist within a secret."""
 
 
+# Maps each Vault secret path to the keys it must contain.
+# Used by validate_required_secrets() for startup readiness checks.
 REQUIRED_SECRETS: dict[str, set[str]] = {
+    # JWT signing secret for fastapi-users token generation
     "jwt": {"secret"},
+    # Postgres connection credentials
     "postgres": {"user", "password", "db"},
+    # MinIO admin credentials for bucket creation and object access
     "minio": {"access_key", "secret_key"},
+    # SFTP server credentials for vendor drop folder access
     "sftp": {"user", "password", "host", "port"},
+    # Redis connection URL for RQ and fastapi-cache2
     "redis": {"url"},
 }
 

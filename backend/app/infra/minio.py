@@ -29,7 +29,9 @@ class MinIOFileNotFoundError(MinIOError):
     """Raised when a requested object does not exist."""
 
 
+# MinIO bucket name for storing original scanner TIFFs before classification
 ORIGINALS_BUCKET = "originals"
+# MinIO bucket name for storing annotated overlay PNGs after classification
 OVERLAYS_BUCKET = "overlays"
 
 
