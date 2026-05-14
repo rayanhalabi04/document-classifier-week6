@@ -45,13 +45,25 @@ SFTP_DROP_DIR = os.environ.get("SFTP_DROP_DIR", "drop")
 
 @dataclass
 class _SeenFile:
-    """Tracks a previously observed file for stable-file detection."""
+    """Tracks a previously observed file for stable-file detection.
+
+    Attributes:
+        size_bytes: File size observed in the last poll cycle.
+        modified_at: Last modification timestamp observed.
+        When both match across two consecutive polls, the file is
+        considered "stable" (the scanner has finished writing it).
+    """
 
     size_bytes: int
     modified_at: datetime
 
 
 def _compute_checksum(data: bytes) -> str:
+    """Return the SHA-256 hex digest of a file's content.
+
+    Used for duplicate detection: files with the same source_path
+    and checksum are treated as duplicates and skipped.
+    """
     return hashlib.sha256(data).hexdigest()
 
 

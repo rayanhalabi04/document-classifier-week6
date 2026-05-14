@@ -16,6 +16,10 @@ import sys
 import hvac
 
 
+# All Vault secrets required for local development.
+# Each top-level key is a KV v2 path. The nested dict contains
+# the key-value pairs that will be written under that path.
+# These values match the defaults in .env.example.
 SECRETS = {
     "jwt": {
         "secret": "my-jwt-secret-key",
