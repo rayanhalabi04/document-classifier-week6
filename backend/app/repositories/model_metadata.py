@@ -19,7 +19,11 @@ class ModelMetadataRepository:
 
     def get_latest(self) -> Optional[ModelMetadata]:
         """Return the most recently registered model metadata record."""
-        stmt = select(ModelMetadata).order_by(ModelMetadata.created_at.desc())
+        stmt = (
+            select(ModelMetadata)
+            .order_by(ModelMetadata.created_at.desc())
+            .limit(1)
+        )
         return self.session.execute(stmt).scalar_one_or_none()
 
     def get_by_classifier_checksum(self, checksum: str) -> Optional[ModelMetadata]:

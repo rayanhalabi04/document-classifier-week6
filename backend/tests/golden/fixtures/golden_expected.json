@@ -1,452 +1,502 @@
 [
   {
-    "filename": "025611_letter.tif",
+    "filename": "000027_letter.tif",
+    "dataset_index": 27,
     "expected_label": 0,
     "expected_class": "letter",
-    "expected_top1_confidence": 0.6966622471809387,
-    "model_predicted_label": 0,
-    "model_predicted_class": "letter",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "007833_letter.tif",
-    "expected_label": 0,
-    "expected_class": "letter",
-    "expected_top1_confidence": 0.5398154258728027,
-    "model_predicted_label": 0,
-    "model_predicted_class": "letter",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "002360_letter.tif",
-    "expected_label": 0,
-    "expected_class": "letter",
-    "expected_top1_confidence": 0.23137234151363373,
+    "expected_top1_confidence": 0.6581432223320007,
     "model_predicted_label": 15,
     "model_predicted_class": "memo",
-    "pick_type": "ambiguous"
+    "pick_type": "confused_pair"
   },
   {
-    "filename": "039950_form.tif",
-    "expected_label": 1,
-    "expected_class": "form",
-    "expected_top1_confidence": 0.5042324662208557,
-    "model_predicted_label": 1,
-    "model_predicted_class": "form",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "025742_form.tif",
-    "expected_label": 1,
-    "expected_class": "form",
-    "expected_top1_confidence": 0.5782448649406433,
-    "model_predicted_label": 1,
-    "model_predicted_class": "form",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "029530_form.tif",
-    "expected_label": 1,
-    "expected_class": "form",
-    "expected_top1_confidence": 0.24278442561626434,
-    "model_predicted_label": 7,
-    "model_predicted_class": "specification",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "009225_email.tif",
-    "expected_label": 2,
-    "expected_class": "email",
-    "expected_top1_confidence": 0.9790303111076355,
-    "model_predicted_label": 2,
-    "model_predicted_class": "email",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "033173_email.tif",
-    "expected_label": 2,
-    "expected_class": "email",
-    "expected_top1_confidence": 0.9824855327606201,
-    "model_predicted_label": 2,
-    "model_predicted_class": "email",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "010607_email.tif",
-    "expected_label": 2,
-    "expected_class": "email",
-    "expected_top1_confidence": 0.411367803812027,
-    "model_predicted_label": 2,
-    "model_predicted_class": "email",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "027479_handwritten.tif",
-    "expected_label": 3,
-    "expected_class": "handwritten",
-    "expected_top1_confidence": 0.967600405216217,
-    "model_predicted_label": 3,
-    "model_predicted_class": "handwritten",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "003479_handwritten.tif",
-    "expected_label": 3,
-    "expected_class": "handwritten",
-    "expected_top1_confidence": 0.9667902588844299,
-    "model_predicted_label": 3,
-    "model_predicted_class": "handwritten",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "020189_handwritten.tif",
-    "expected_label": 3,
-    "expected_class": "handwritten",
-    "expected_top1_confidence": 0.40176403522491455,
-    "model_predicted_label": 3,
-    "model_predicted_class": "handwritten",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "012835_advertisement.tif",
-    "expected_label": 4,
-    "expected_class": "advertisement",
-    "expected_top1_confidence": 0.9389457702636719,
-    "model_predicted_label": 4,
-    "model_predicted_class": "advertisement",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "026056_advertisement.tif",
-    "expected_label": 4,
-    "expected_class": "advertisement",
-    "expected_top1_confidence": 0.9688988327980042,
-    "model_predicted_label": 4,
-    "model_predicted_class": "advertisement",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "016381_advertisement.tif",
-    "expected_label": 4,
-    "expected_class": "advertisement",
-    "expected_top1_confidence": 0.3129679560661316,
-    "model_predicted_label": 12,
-    "model_predicted_class": "presentation",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "037053_scientific_report.tif",
-    "expected_label": 5,
-    "expected_class": "scientific report",
-    "expected_top1_confidence": 0.37191542983055115,
-    "model_predicted_label": 5,
-    "model_predicted_class": "scientific report",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "017820_scientific_report.tif",
-    "expected_label": 5,
-    "expected_class": "scientific report",
-    "expected_top1_confidence": 0.3599025309085846,
-    "model_predicted_label": 5,
-    "model_predicted_class": "scientific report",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "005668_scientific_report.tif",
-    "expected_label": 5,
-    "expected_class": "scientific report",
-    "expected_top1_confidence": 0.24492846429347992,
-    "model_predicted_label": 5,
-    "model_predicted_class": "scientific report",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "031358_scientific_publication.tif",
-    "expected_label": 6,
-    "expected_class": "scientific publication",
-    "expected_top1_confidence": 0.9569737315177917,
-    "model_predicted_label": 6,
-    "model_predicted_class": "scientific publication",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "010643_scientific_publication.tif",
-    "expected_label": 6,
-    "expected_class": "scientific publication",
-    "expected_top1_confidence": 0.9503609538078308,
-    "model_predicted_label": 6,
-    "model_predicted_class": "scientific publication",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "010137_scientific_publication.tif",
-    "expected_label": 6,
-    "expected_class": "scientific publication",
-    "expected_top1_confidence": 0.4457363784313202,
-    "model_predicted_label": 6,
-    "model_predicted_class": "scientific publication",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "013098_specification.tif",
+    "filename": "000066_specification.tif",
+    "dataset_index": 66,
     "expected_label": 7,
     "expected_class": "specification",
-    "expected_top1_confidence": 0.7815893888473511,
+    "expected_top1_confidence": 0.9885202050209045,
     "model_predicted_label": 7,
     "model_predicted_class": "specification",
     "pick_type": "easy"
   },
   {
-    "filename": "008874_specification.tif",
-    "expected_label": 7,
-    "expected_class": "specification",
-    "expected_top1_confidence": 0.7655826210975647,
-    "model_predicted_label": 7,
-    "model_predicted_class": "specification",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "005315_specification.tif",
-    "expected_label": 7,
-    "expected_class": "specification",
-    "expected_top1_confidence": 0.20845477283000946,
-    "model_predicted_label": 10,
-    "model_predicted_class": "budget",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "039062_file_folder.tif",
-    "expected_label": 8,
-    "expected_class": "file folder",
-    "expected_top1_confidence": 0.9734696745872498,
-    "model_predicted_label": 8,
-    "model_predicted_class": "file folder",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "036835_file_folder.tif",
-    "expected_label": 8,
-    "expected_class": "file folder",
-    "expected_top1_confidence": 0.9443760514259338,
-    "model_predicted_label": 8,
-    "model_predicted_class": "file folder",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "017148_file_folder.tif",
-    "expected_label": 8,
-    "expected_class": "file folder",
-    "expected_top1_confidence": 0.2138800472021103,
-    "model_predicted_label": 10,
-    "model_predicted_class": "budget",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "010292_news_article.tif",
-    "expected_label": 9,
-    "expected_class": "news article",
-    "expected_top1_confidence": 0.8864908218383789,
-    "model_predicted_label": 9,
-    "model_predicted_class": "news article",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "032673_news_article.tif",
-    "expected_label": 9,
-    "expected_class": "news article",
-    "expected_top1_confidence": 0.8830782771110535,
-    "model_predicted_label": 9,
-    "model_predicted_class": "news article",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "028080_news_article.tif",
-    "expected_label": 9,
-    "expected_class": "news article",
-    "expected_top1_confidence": 0.3416927456855774,
-    "model_predicted_label": 14,
-    "model_predicted_class": "resume",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "003017_budget.tif",
-    "expected_label": 10,
-    "expected_class": "budget",
-    "expected_top1_confidence": 0.710418164730072,
-    "model_predicted_label": 10,
-    "model_predicted_class": "budget",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "011549_budget.tif",
-    "expected_label": 10,
-    "expected_class": "budget",
-    "expected_top1_confidence": 0.5655069351196289,
-    "model_predicted_label": 10,
-    "model_predicted_class": "budget",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "022962_budget.tif",
-    "expected_label": 10,
-    "expected_class": "budget",
-    "expected_top1_confidence": 0.23935340344905853,
-    "model_predicted_label": 10,
-    "model_predicted_class": "budget",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "003161_invoice.tif",
-    "expected_label": 11,
-    "expected_class": "invoice",
-    "expected_top1_confidence": 0.62897789478302,
-    "model_predicted_label": 11,
-    "model_predicted_class": "invoice",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "001745_invoice.tif",
-    "expected_label": 11,
-    "expected_class": "invoice",
-    "expected_top1_confidence": 0.8482881784439087,
-    "model_predicted_label": 11,
-    "model_predicted_class": "invoice",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "027559_invoice.tif",
-    "expected_label": 11,
-    "expected_class": "invoice",
-    "expected_top1_confidence": 0.27734798192977905,
-    "model_predicted_label": 7,
-    "model_predicted_class": "specification",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "030044_presentation.tif",
-    "expected_label": 12,
-    "expected_class": "presentation",
-    "expected_top1_confidence": 0.7616539001464844,
-    "model_predicted_label": 12,
-    "model_predicted_class": "presentation",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "000900_presentation.tif",
-    "expected_label": 12,
-    "expected_class": "presentation",
-    "expected_top1_confidence": 0.7427840828895569,
-    "model_predicted_label": 12,
-    "model_predicted_class": "presentation",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "030400_presentation.tif",
-    "expected_label": 12,
-    "expected_class": "presentation",
-    "expected_top1_confidence": 0.19575653970241547,
-    "model_predicted_label": 6,
-    "model_predicted_class": "scientific publication",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "011726_questionnaire.tif",
-    "expected_label": 13,
-    "expected_class": "questionnaire",
-    "expected_top1_confidence": 0.6563351154327393,
-    "model_predicted_label": 13,
-    "model_predicted_class": "questionnaire",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "010387_questionnaire.tif",
-    "expected_label": 13,
-    "expected_class": "questionnaire",
-    "expected_top1_confidence": 0.682896077632904,
-    "model_predicted_label": 13,
-    "model_predicted_class": "questionnaire",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "016968_questionnaire.tif",
-    "expected_label": 13,
-    "expected_class": "questionnaire",
-    "expected_top1_confidence": 0.16775527596473694,
-    "model_predicted_label": 13,
-    "model_predicted_class": "questionnaire",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "038045_resume.tif",
-    "expected_label": 14,
-    "expected_class": "resume",
-    "expected_top1_confidence": 0.8742868900299072,
-    "model_predicted_label": 14,
-    "model_predicted_class": "resume",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "035613_resume.tif",
-    "expected_label": 14,
-    "expected_class": "resume",
-    "expected_top1_confidence": 0.9195311665534973,
-    "model_predicted_label": 14,
-    "model_predicted_class": "resume",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "007026_resume.tif",
-    "expected_label": 14,
-    "expected_class": "resume",
-    "expected_top1_confidence": 0.30805864930152893,
-    "model_predicted_label": 12,
-    "model_predicted_class": "presentation",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "029337_memo.tif",
+    "filename": "000218_memo.tif",
+    "dataset_index": 218,
     "expected_label": 15,
     "expected_class": "memo",
-    "expected_top1_confidence": 0.3932279944419861,
-    "model_predicted_label": 15,
-    "model_predicted_class": "memo",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "000726_memo.tif",
-    "expected_label": 15,
-    "expected_class": "memo",
-    "expected_top1_confidence": 0.3760981857776642,
-    "model_predicted_label": 15,
-    "model_predicted_class": "memo",
-    "pick_type": "easy"
-  },
-  {
-    "filename": "010862_memo.tif",
-    "expected_label": 15,
-    "expected_class": "memo",
-    "expected_top1_confidence": 0.2447127401828766,
-    "model_predicted_label": 15,
-    "model_predicted_class": "memo",
-    "pick_type": "ambiguous"
-  },
-  {
-    "filename": "000016_memo.tif",
-    "expected_label": 15,
-    "expected_class": "memo",
-    "expected_top1_confidence": 0.35300734639167786,
+    "expected_top1_confidence": 0.3317112326622009,
     "model_predicted_label": 0,
     "model_predicted_class": "letter",
     "pick_type": "confused_pair"
   },
   {
-    "filename": "000028_scientific_report.tif",
-    "expected_label": 5,
-    "expected_class": "scientific report",
-    "expected_top1_confidence": 0.4615952968597412,
+    "filename": "000430_news_article.tif",
+    "dataset_index": 430,
+    "expected_label": 9,
+    "expected_class": "news article",
+    "expected_top1_confidence": 0.9815219640731812,
+    "model_predicted_label": 9,
+    "model_predicted_class": "news article",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "000703_presentation.tif",
+    "dataset_index": 703,
+    "expected_label": 12,
+    "expected_class": "presentation",
+    "expected_top1_confidence": 0.9028696417808533,
+    "model_predicted_label": 12,
+    "model_predicted_class": "presentation",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "000704_resume.tif",
+    "dataset_index": 704,
+    "expected_label": 14,
+    "expected_class": "resume",
+    "expected_top1_confidence": 0.3919103741645813,
+    "model_predicted_label": 14,
+    "model_predicted_class": "resume",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "000996_questionnaire.tif",
+    "dataset_index": 996,
+    "expected_label": 13,
+    "expected_class": "questionnaire",
+    "expected_top1_confidence": 0.1948091834783554,
+    "model_predicted_label": 12,
+    "model_predicted_class": "presentation",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "001378_email.tif",
+    "dataset_index": 1378,
+    "expected_label": 2,
+    "expected_class": "email",
+    "expected_top1_confidence": 0.6116551160812378,
     "model_predicted_label": 10,
     "model_predicted_class": "budget",
-    "pick_type": "confused_pair"
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "002964_form.tif",
+    "dataset_index": 2964,
+    "expected_label": 1,
+    "expected_class": "form",
+    "expected_top1_confidence": 0.8014019131660461,
+    "model_predicted_label": 1,
+    "model_predicted_class": "form",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "003730_advertisement.tif",
+    "dataset_index": 3730,
+    "expected_label": 4,
+    "expected_class": "advertisement",
+    "expected_top1_confidence": 0.41280147433280945,
+    "model_predicted_label": 11,
+    "model_predicted_class": "invoice",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "004046_scientific_report.tif",
+    "dataset_index": 4046,
+    "expected_label": 5,
+    "expected_class": "scientific report",
+    "expected_top1_confidence": 0.7466731667518616,
+    "model_predicted_label": 5,
+    "model_predicted_class": "scientific report",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "005760_invoice.tif",
+    "dataset_index": 5760,
+    "expected_label": 11,
+    "expected_class": "invoice",
+    "expected_top1_confidence": 0.3855016231536865,
+    "model_predicted_label": 0,
+    "model_predicted_class": "letter",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "006028_form.tif",
+    "dataset_index": 6028,
+    "expected_label": 1,
+    "expected_class": "form",
+    "expected_top1_confidence": 0.7223681211471558,
+    "model_predicted_label": 1,
+    "model_predicted_class": "form",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "007864_questionnaire.tif",
+    "dataset_index": 7864,
+    "expected_label": 13,
+    "expected_class": "questionnaire",
+    "expected_top1_confidence": 0.9716748595237732,
+    "model_predicted_label": 13,
+    "model_predicted_class": "questionnaire",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "008344_form.tif",
+    "dataset_index": 8344,
+    "expected_label": 1,
+    "expected_class": "form",
+    "expected_top1_confidence": 0.33483991026878357,
+    "model_predicted_label": 1,
+    "model_predicted_class": "form",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "008575_email.tif",
+    "dataset_index": 8575,
+    "expected_label": 2,
+    "expected_class": "email",
+    "expected_top1_confidence": 0.9980949759483337,
+    "model_predicted_label": 2,
+    "model_predicted_class": "email",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "010237_file_folder.tif",
+    "dataset_index": 10237,
+    "expected_label": 8,
+    "expected_class": "file folder",
+    "expected_top1_confidence": 0.23996593058109283,
+    "model_predicted_label": 8,
+    "model_predicted_class": "file folder",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "010384_memo.tif",
+    "dataset_index": 10384,
+    "expected_label": 15,
+    "expected_class": "memo",
+    "expected_top1_confidence": 0.3591464161872864,
+    "model_predicted_label": 0,
+    "model_predicted_class": "letter",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "011147_file_folder.tif",
+    "dataset_index": 11147,
+    "expected_label": 8,
+    "expected_class": "file folder",
+    "expected_top1_confidence": 0.9955222606658936,
+    "model_predicted_label": 8,
+    "model_predicted_class": "file folder",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "012833_handwritten.tif",
+    "dataset_index": 12833,
+    "expected_label": 3,
+    "expected_class": "handwritten",
+    "expected_top1_confidence": 0.9744892120361328,
+    "model_predicted_label": 3,
+    "model_predicted_class": "handwritten",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "017305_letter.tif",
+    "dataset_index": 17305,
+    "expected_label": 0,
+    "expected_class": "letter",
+    "expected_top1_confidence": 0.3030787408351898,
+    "model_predicted_label": 0,
+    "model_predicted_class": "letter",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "018028_memo.tif",
+    "dataset_index": 18028,
+    "expected_label": 15,
+    "expected_class": "memo",
+    "expected_top1_confidence": 0.6707274913787842,
+    "model_predicted_label": 15,
+    "model_predicted_class": "memo",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "018252_questionnaire.tif",
+    "dataset_index": 18252,
+    "expected_label": 13,
+    "expected_class": "questionnaire",
+    "expected_top1_confidence": 0.963125467300415,
+    "model_predicted_label": 13,
+    "model_predicted_class": "questionnaire",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "019379_scientific_publication.tif",
+    "dataset_index": 19379,
+    "expected_label": 6,
+    "expected_class": "scientific publication",
+    "expected_top1_confidence": 0.6015692949295044,
+    "model_predicted_label": 6,
+    "model_predicted_class": "scientific publication",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "019659_letter.tif",
+    "dataset_index": 19659,
+    "expected_label": 0,
+    "expected_class": "letter",
+    "expected_top1_confidence": 0.7993171215057373,
+    "model_predicted_label": 0,
+    "model_predicted_class": "letter",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "020727_letter.tif",
+    "dataset_index": 20727,
+    "expected_label": 0,
+    "expected_class": "letter",
+    "expected_top1_confidence": 0.9340269565582275,
+    "model_predicted_label": 0,
+    "model_predicted_class": "letter",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "021421_invoice.tif",
+    "dataset_index": 21421,
+    "expected_label": 11,
+    "expected_class": "invoice",
+    "expected_top1_confidence": 0.9799801111221313,
+    "model_predicted_label": 11,
+    "model_predicted_class": "invoice",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "022219_budget.tif",
+    "dataset_index": 22219,
+    "expected_label": 10,
+    "expected_class": "budget",
+    "expected_top1_confidence": 0.9189056754112244,
+    "model_predicted_label": 10,
+    "model_predicted_class": "budget",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "023976_news_article.tif",
+    "dataset_index": 23976,
+    "expected_label": 9,
+    "expected_class": "news article",
+    "expected_top1_confidence": 0.4672744870185852,
+    "model_predicted_label": 6,
+    "model_predicted_class": "scientific publication",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "024142_scientific_report.tif",
+    "dataset_index": 24142,
+    "expected_label": 5,
+    "expected_class": "scientific report",
+    "expected_top1_confidence": 0.6922476887702942,
+    "model_predicted_label": 5,
+    "model_predicted_class": "scientific report",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "025057_file_folder.tif",
+    "dataset_index": 25057,
+    "expected_label": 8,
+    "expected_class": "file folder",
+    "expected_top1_confidence": 0.984265923500061,
+    "model_predicted_label": 8,
+    "model_predicted_class": "file folder",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "025233_specification.tif",
+    "dataset_index": 25233,
+    "expected_label": 7,
+    "expected_class": "specification",
+    "expected_top1_confidence": 0.29012471437454224,
+    "model_predicted_label": 10,
+    "model_predicted_class": "budget",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "026238_advertisement.tif",
+    "dataset_index": 26238,
+    "expected_label": 4,
+    "expected_class": "advertisement",
+    "expected_top1_confidence": 0.9837700128555298,
+    "model_predicted_label": 4,
+    "model_predicted_class": "advertisement",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "026704_handwritten.tif",
+    "dataset_index": 26704,
+    "expected_label": 3,
+    "expected_class": "handwritten",
+    "expected_top1_confidence": 0.9752537608146667,
+    "model_predicted_label": 3,
+    "model_predicted_class": "handwritten",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "027974_resume.tif",
+    "dataset_index": 27974,
+    "expected_label": 14,
+    "expected_class": "resume",
+    "expected_top1_confidence": 0.9944281578063965,
+    "model_predicted_label": 14,
+    "model_predicted_class": "resume",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "029017_scientific_report.tif",
+    "dataset_index": 29017,
+    "expected_label": 5,
+    "expected_class": "scientific report",
+    "expected_top1_confidence": 0.320190966129303,
+    "model_predicted_label": 13,
+    "model_predicted_class": "questionnaire",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "029541_resume.tif",
+    "dataset_index": 29541,
+    "expected_label": 14,
+    "expected_class": "resume",
+    "expected_top1_confidence": 0.9980787038803101,
+    "model_predicted_label": 14,
+    "model_predicted_class": "resume",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "030479_invoice.tif",
+    "dataset_index": 30479,
+    "expected_label": 11,
+    "expected_class": "invoice",
+    "expected_top1_confidence": 0.8695452213287354,
+    "model_predicted_label": 11,
+    "model_predicted_class": "invoice",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "031254_presentation.tif",
+    "dataset_index": 31254,
+    "expected_label": 12,
+    "expected_class": "presentation",
+    "expected_top1_confidence": 0.25130483508110046,
+    "model_predicted_label": 5,
+    "model_predicted_class": "scientific report",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "031655_advertisement.tif",
+    "dataset_index": 31655,
+    "expected_label": 4,
+    "expected_class": "advertisement",
+    "expected_top1_confidence": 0.9937716126441956,
+    "model_predicted_label": 4,
+    "model_predicted_class": "advertisement",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "033038_scientific_publication.tif",
+    "dataset_index": 33038,
+    "expected_label": 6,
+    "expected_class": "scientific publication",
+    "expected_top1_confidence": 0.9882043600082397,
+    "model_predicted_label": 6,
+    "model_predicted_class": "scientific publication",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "033373_scientific_publication.tif",
+    "dataset_index": 33373,
+    "expected_label": 6,
+    "expected_class": "scientific publication",
+    "expected_top1_confidence": 0.9898949265480042,
+    "model_predicted_label": 6,
+    "model_predicted_class": "scientific publication",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "033416_budget.tif",
+    "dataset_index": 33416,
+    "expected_label": 10,
+    "expected_class": "budget",
+    "expected_top1_confidence": 0.29979315400123596,
+    "model_predicted_label": 13,
+    "model_predicted_class": "questionnaire",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "033733_budget.tif",
+    "dataset_index": 33733,
+    "expected_label": 10,
+    "expected_class": "budget",
+    "expected_top1_confidence": 0.8207583427429199,
+    "model_predicted_label": 10,
+    "model_predicted_class": "budget",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "033933_handwritten.tif",
+    "dataset_index": 33933,
+    "expected_label": 3,
+    "expected_class": "handwritten",
+    "expected_top1_confidence": 0.5534079670906067,
+    "model_predicted_label": 3,
+    "model_predicted_class": "handwritten",
+    "pick_type": "ambiguous"
+  },
+  {
+    "filename": "034266_presentation.tif",
+    "dataset_index": 34266,
+    "expected_label": 12,
+    "expected_class": "presentation",
+    "expected_top1_confidence": 0.8743026852607727,
+    "model_predicted_label": 12,
+    "model_predicted_class": "presentation",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "037034_memo.tif",
+    "dataset_index": 37034,
+    "expected_label": 15,
+    "expected_class": "memo",
+    "expected_top1_confidence": 0.6376053690910339,
+    "model_predicted_label": 15,
+    "model_predicted_class": "memo",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "037876_specification.tif",
+    "dataset_index": 37876,
+    "expected_label": 7,
+    "expected_class": "specification",
+    "expected_top1_confidence": 0.9868283271789551,
+    "model_predicted_label": 7,
+    "model_predicted_class": "specification",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "038533_email.tif",
+    "dataset_index": 38533,
+    "expected_label": 2,
+    "expected_class": "email",
+    "expected_top1_confidence": 0.9984440207481384,
+    "model_predicted_label": 2,
+    "model_predicted_class": "email",
+    "pick_type": "easy"
+  },
+  {
+    "filename": "039658_news_article.tif",
+    "dataset_index": 39658,
+    "expected_label": 9,
+    "expected_class": "news article",
+    "expected_top1_confidence": 0.9807698726654053,
+    "model_predicted_label": 9,
+    "model_predicted_class": "news article",
+    "pick_type": "easy"
   }
 ]
