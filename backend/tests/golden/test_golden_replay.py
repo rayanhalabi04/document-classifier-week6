@@ -17,8 +17,8 @@ _MODELS_DIR = Path(__file__).parent.parent.parent / "app" / "classifier" / "mode
 _CLASSIFIER_PATH = _MODELS_DIR / "classifier.pt"
 _MODEL_CARD_PATH = _MODELS_DIR / "model_card.json"
 
-_FIXTURES_DIR = Path(__file__).parent / "fixtures"
-_GOLDEN_EXPECTED = Path(__file__).parent / "golden_expected.json"
+_FIXTURES_DIR = Path(__file__).parent / "fixtures" / "golden_images"
+_GOLDEN_EXPECTED = Path(__file__).parent / "fixtures" / "golden_expected.json"
 
 
 @pytest.mark.golden
