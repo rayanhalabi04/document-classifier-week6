@@ -21,7 +21,7 @@ export default function AuditorPage({ data, auditOnly = false, setDemoMode }) {
         <div>
           <p className="eyebrow">Read-only mode</p>
           <h2>Auditor visibility</h2>
-          <p>Auditors can inspect predictions and audit events without mutation controls.</p>
+          <p>Auditors can inspect batches, predictions, and audit events without mutation controls.</p>
         </div>
         <span className="readonly-pill">Read-only mode</span>
       </section>

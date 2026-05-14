@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchCurrentUser, logout as logoutApi } from "./api/auth";
 import { fetchAuditEvents } from "./api/audit";
+import { listBatches } from "./api/batches";
 import { fetchRecentPredictions } from "./api/predictions";
 import Layout, { getPrimaryRole } from "./components/Layout";
 import { demoAuditEvents, demoPredictions } from "./demoData";
 import AdminPage from "./pages/AdminPage";
 import AuditorPage from "./pages/AuditorPage";
+import BatchesPage from "./pages/BatchesPage";
 import LoginPage from "./pages/LoginPage";
 import OverviewPage from "./pages/OverviewPage";
 import PredictionsPage from "./pages/PredictionsPage";
@@ -18,6 +20,7 @@ export default function App() {
   const [loadingUser, setLoadingUser] = useState(Boolean(getToken()));
   const [demoMode, setDemoMode] = useState(false);
   const [data, setData] = useState({
+    batches: [],
     predictions: [],
     auditEvents: [],
   });
@@ -39,15 +42,16 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    Promise.allSettled([fetchRecentPredictions(), fetchAuditEvents({ limit: 20 })]).then(
+    Promise.allSettled([listBatches(), fetchRecentPredictions(), fetchAuditEvents({ limit: 20 })]).then(
       (results) => {
         if (cancelled) return;
-        const [predictionsResult, auditResult] = results;
+        const [batchesResult, predictionsResult, auditResult] = results;
         const apiUnavailable = results.some(
           (result) => result.status === "rejected" && isNetworkError(result.reason),
         );
         setDemoMode(apiUnavailable);
         setData({
+          batches: valueOrFallback(batchesResult, []),
           predictions: valueOrFallback(predictionsResult, demoPredictions),
           auditEvents: valueOrFallback(auditResult, demoAuditEvents),
         });
@@ -91,7 +95,7 @@ export default function App() {
       onLogout={() => {
         logoutApi();
         setUser(null);
-        setData({ predictions: [], auditEvents: [] });
+        setData({ batches: [], predictions: [], auditEvents: [] });
         setDemoMode(false);
       }}
     >
@@ -104,6 +108,7 @@ function renderPage(page, props) {
   if (page === "admin") return <AdminPage {...props} />;
   if (page === "reviewer") return <ReviewerPage {...props} />;
   if (page === "auditor" || page === "audit") return <AuditorPage {...props} auditOnly={page === "audit"} />;
+  if (page === "batches") return <BatchesPage {...props} />;
   if (page === "predictions") return <PredictionsPage {...props} />;
   return <OverviewPage {...props} />;
 }
@@ -118,8 +123,8 @@ function defaultPageForRole(role) {
 }
 
 function allowedPages(role) {
-  if (role === "admin") return ["overview", "admin", "predictions", "audit"];
-  if (role === "reviewer") return ["overview", "reviewer", "predictions"];
-  if (role === "auditor") return ["overview", "predictions", "audit"];
+  if (role === "admin") return ["overview", "admin", "batches", "predictions", "audit"];
+  if (role === "reviewer") return ["overview", "reviewer", "batches", "predictions"];
+  if (role === "auditor") return ["overview", "batches", "predictions", "audit"];
   return ["overview", "predictions"];
 }

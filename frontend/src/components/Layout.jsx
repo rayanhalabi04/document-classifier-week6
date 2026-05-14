@@ -4,16 +4,19 @@ const navByRole = {
   admin: [
     ["overview", "Overview"],
     ["admin", "Admin"],
+    ["batches", "Batches"],
     ["predictions", "Predictions"],
     ["audit", "Audit"],
   ],
   reviewer: [
     ["overview", "Overview"],
     ["reviewer", "Reviewer Queue"],
+    ["batches", "Batches"],
     ["predictions", "Predictions"],
   ],
   auditor: [
     ["overview", "Overview"],
+    ["batches", "Batches"],
     ["predictions", "Predictions"],
     ["audit", "Audit"],
   ],
@@ -91,6 +94,7 @@ function pageTitle(page) {
     overview: "Overview",
     admin: "Admin workspace",
     reviewer: "Reviewer queue",
+    batches: "Batches",
     predictions: "Predictions",
     audit: "Audit log",
   };
