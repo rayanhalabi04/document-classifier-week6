@@ -7,7 +7,7 @@ after successful Postgres commits.
 
 from __future__ import annotations
 
-import logging
+from app.infra.logging import get_logger
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -16,7 +16,7 @@ from redis.exceptions import RedisError
 from app.config import settings
 from app.infra.redis import get_async_redis_client, get_redis_client
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 async def init_cache() -> None:

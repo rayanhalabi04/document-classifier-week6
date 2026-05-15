@@ -4,7 +4,7 @@ Services own the transaction. Repositories own SQL. Workers call this service
 to transition job state; the API never modifies jobs directly.
 """
 
-import logging
+from app.infra.logging import get_logger
 import uuid
 from datetime import datetime, timezone
 
@@ -17,7 +17,7 @@ from app.repositories.predictions import PredictionRepository
 from app.services.audit_log import AuditLogService
 from app.services.cache_invalidation import invalidate_after_classification
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 REVIEW_CONFIDENCE_THRESHOLD = 0.7
 

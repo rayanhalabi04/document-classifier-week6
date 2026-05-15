@@ -8,7 +8,7 @@ Rules:
 - Cache is invalidated after a successful commit.
 """
 
-import logging
+from app.infra.logging import get_logger
 import uuid
 from datetime import datetime, timezone
 
@@ -23,7 +23,7 @@ from app.services.audit_log import AuditLogService
 from app.services.authorization import AuthorizationService
 from app.services.cache_invalidation import invalidate_user_roles
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 VALID_ROLES = {"admin", "reviewer", "auditor"}
 

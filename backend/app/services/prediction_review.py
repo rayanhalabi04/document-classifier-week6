@@ -8,7 +8,7 @@ Rules:
 - Cache is invalidated after a successful commit.
 """
 
-import logging
+from app.infra.logging import get_logger
 import uuid
 from datetime import datetime, timezone
 
@@ -22,7 +22,7 @@ from app.services.audit_log import AuditLogService
 from app.services.authorization import AuthorizationService
 from app.services.cache_invalidation import invalidate_after_relabel
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # The 16 RVL-CDIP layout classes — must match model_card.json
 RVL_CDIP_CLASSES = {

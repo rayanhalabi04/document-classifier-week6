@@ -17,7 +17,7 @@ Main loop:
 from __future__ import annotations
 
 import hashlib
-import logging
+from app.infra.logging import get_logger
 import signal
 import sys
 import time
@@ -37,7 +37,7 @@ from app.repositories.model_metadata import ModelMetadataRepository
 from app.services.ingestion import IngestionService
 from app.services.startup_validation import run_ingestion_worker_checks
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 POLL_INTERVAL_SECONDS = settings.ingestion_poll_interval
 STABILITY_INTERVAL_SECONDS = settings.ingestion_stability_interval

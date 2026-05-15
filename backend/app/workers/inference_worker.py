@@ -13,9 +13,9 @@ Each job:
   6. On error, marks the job retryable_failed and re-raises so RQ retries.
 """
 
-import logging
 import sys
 import tempfile
+import time
 import uuid
 from pathlib import Path
 from typing import Optional, Tuple
@@ -30,19 +30,59 @@ from app.classifier.validation import validate_all
 from app.db.session import SessionFactory
 from app.domain.errors import ClassificationError
 from app.domain.model_metadata import ModelCard
+from app.infra.logging import get_logger
 from app.infra.minio import ORIGINALS_BUCKET, OVERLAYS_BUCKET, MinIOAdapter
 from app.repositories.documents import DocumentRepository
 from app.repositories.jobs import ClassificationJobRepository
 from app.services.classification_jobs import ClassificationJobService
 from app.services.startup_validation import run_inference_worker_checks
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 _MODELS_DIR = Path(__file__).parent.parent / "classifier" / "models"
 _CLASSIFIER_PATH = _MODELS_DIR / "classifier.pt"
 _MODEL_CARD_PATH = _MODELS_DIR / "model_card.json"
 
 _model_cache: Optional[Tuple[nn.Module, ModelCard]] = None
+
+# Circuit breaker — pauses worker after consecutive permanent failures
+# to prevent crash-loops from corrupted model or misconfigured storage.
+_circuit_failures = 0
+_circuit_cooldown_until = 0.0
+_CIRCUIT_MAX_FAILURES = 5
+_CIRCUIT_COOLDOWN_SECONDS = 60
+
+
+def _check_circuit() -> None:
+    """Raise if the circuit breaker is open (too many consecutive failures)."""
+    global _circuit_failures, _circuit_cooldown_until
+    if _circuit_failures >= _CIRCUIT_MAX_FAILURES:
+        remaining = _circuit_cooldown_until - time.time()
+        if remaining > 0:
+            raise ClassificationError(
+                f"Circuit breaker open — {_circuit_failures} consecutive "
+                f"failures, cooling down for {remaining:.0f}s"
+            )
+
+
+def _record_success() -> None:
+    global _circuit_failures
+    if _circuit_failures > 0:
+        logger.info("Circuit breaker reset after successful classification")
+    _circuit_failures = 0
+
+
+def _record_failure() -> None:
+    global _circuit_failures, _circuit_cooldown_until
+    _circuit_failures += 1
+    if _circuit_failures >= _CIRCUIT_MAX_FAILURES:
+        _circuit_cooldown_until = time.time() + _CIRCUIT_COOLDOWN_SECONDS
+        logger.error(
+            "Circuit breaker OPEN after %d consecutive failures — "
+            "pausing for %ds",
+            _circuit_failures,
+            _CIRCUIT_COOLDOWN_SECONDS,
+        )
 
 
 def _get_model() -> Tuple[nn.Module, ModelCard]:
@@ -64,6 +104,8 @@ def classify_document(document_id: str, model_metadata_id: str) -> None:
     """
     doc_uuid = uuid.UUID(document_id)
     meta_uuid = uuid.UUID(model_metadata_id)
+
+    _check_circuit()
 
     with SessionFactory() as session:
         job_repo = ClassificationJobRepository(session)
@@ -116,11 +158,13 @@ def classify_document(document_id: str, model_metadata_id: str) -> None:
                 result.predicted_class,
                 result.top1_confidence * 100,
             )
+            _record_success()
 
         except Exception as exc:
             logger.exception(
                 "Classification failed for document %s (job %s)", document_id, job.id
             )
+            _record_failure()
             svc.mark_retryable_failure(job.id, str(exc))
             raise
 

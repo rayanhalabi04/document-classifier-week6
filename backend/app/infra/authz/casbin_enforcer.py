@@ -8,7 +8,7 @@ within milliseconds — no polling, no stale reads in multi-worker deployments.
 from __future__ import annotations
 
 import json
-import logging
+from app.infra.logging import get_logger
 import threading
 import time
 from functools import lru_cache
@@ -22,7 +22,7 @@ from app.db.models import CasbinRule
 from app.db.session import engine as default_engine
 from app.domain.roles import Action, Resource, Role
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 MODEL_PATH = Path(__file__).with_name("rbac_model.conf")
 

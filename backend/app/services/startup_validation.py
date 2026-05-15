@@ -5,11 +5,11 @@ StartupValidationError with a safe message on failure. No credentials or
 infrastructure internals are included in error messages.
 """
 
-import logging
+from app.infra.logging import get_logger
 
 from app.domain.errors import StartupValidationError
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # ---------------------------------------------------------------------------

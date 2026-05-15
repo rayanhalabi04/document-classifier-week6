@@ -6,7 +6,7 @@ Cache invalidation runs after a successful commit.
 """
 
 import hashlib
-import logging
+from app.infra.logging import get_logger
 import uuid
 from datetime import datetime, timezone
 
@@ -31,7 +31,7 @@ from app.repositories.jobs import ClassificationJobRepository
 from app.services.audit_log import AuditLogService
 from app.services.cache_invalidation import invalidate_batch_list
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 SUPPORTED_MIME_TYPE = "image/tiff"
 

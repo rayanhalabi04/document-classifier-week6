@@ -115,6 +115,10 @@ def create_app() -> FastAPI:
     app.include_router(predictions.router)
     app.include_router(audit.router)
 
+    # ── Prometheus metrics ────────────────────────────────────
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app)
+
     return app
 
 

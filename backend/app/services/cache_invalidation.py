@@ -4,12 +4,12 @@ Services call this after a successful commit. Routers never invalidate directly.
 Redis deletion failures are logged and audited but do not roll back Postgres data.
 """
 
-import logging
+from app.infra.logging import get_logger
 import uuid
 
 from app.domain.errors import CacheInvalidationError
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # RVL-CDIP role identifiers used in cache key scoping
 ROLES = ("admin", "reviewer", "auditor")
