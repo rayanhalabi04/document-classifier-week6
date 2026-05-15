@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     cache_prefix: str = "dc"
     cache_default_ttl: int = 300  # global fallback TTL in seconds
 
+    # ── CORS ──────────────────────────────────────────────────
+    cors_origins: str = "http://localhost:5173"  # comma-separated
+
     model_config = {"env_prefix": "", "case_sensitive": False}
 
 

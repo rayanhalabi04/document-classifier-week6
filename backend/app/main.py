@@ -4,11 +4,20 @@ import time
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from fastapi_cache import FastAPICache
 
 from app.api import audit, auth, batches, health, predictions, roles, users
+from app.config import settings
 from app.db.session import SessionFactory, engine
+from app.domain.errors import (
+    DuplicateDocumentError,
+    InvalidReviewLabel,
+    PermissionDenied,
+    PredictionNotFound,
+    ReviewNotEligible,
+    UnsupportedFileTypeError,
+)
 from app.infra.cache import init_cache
 from app.infra.logging import get_logger
 from app.infra.authz.casbin_enforcer import spawn_policy_listener
@@ -86,7 +95,7 @@ def create_app() -> FastAPI:
     # ── CORS ──────────────────────────────────────────────────
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -114,6 +123,31 @@ def create_app() -> FastAPI:
     app.include_router(batches.router)
     app.include_router(predictions.router)
     app.include_router(audit.router)
+
+    # ── Global exception handlers ─────────────────────────────
+    @app.exception_handler(PredictionNotFound)
+    async def _prediction_not_found(request, exc):
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    @app.exception_handler(PermissionDenied)
+    async def _permission_denied(request, exc):
+        return JSONResponse(status_code=403, content={"detail": str(exc)})
+
+    @app.exception_handler(InvalidReviewLabel)
+    async def _invalid_review_label(request, exc):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+    @app.exception_handler(ReviewNotEligible)
+    async def _review_not_eligible(request, exc):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(DuplicateDocumentError)
+    async def _duplicate_document(request, exc):
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(UnsupportedFileTypeError)
+    async def _unsupported_file_type(request, exc):
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
 
     # ── Prometheus metrics ────────────────────────────────────
     from prometheus_fastapi_instrumentator import Instrumentator

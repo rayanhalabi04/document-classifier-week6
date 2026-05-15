@@ -211,6 +211,10 @@ def main() -> None:
 
     spawn_policy_listener()
 
+    from app.infra.health_server import start_health_server
+
+    start_health_server(8081, "inference")
+
     from rq import Queue, Worker
 
     from app.infra.redis import get_redis_client

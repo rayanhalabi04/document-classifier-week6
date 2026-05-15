@@ -250,6 +250,10 @@ def main() -> None:
 
     spawn_policy_listener()
 
+    from app.infra.health_server import start_health_server
+
+    start_health_server(8080, "ingestion")
+
     logger.info(
         "Ingestion worker running (poll=%ds, stability=%ds)",
         POLL_INTERVAL_SECONDS,
