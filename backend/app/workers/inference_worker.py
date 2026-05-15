@@ -163,6 +163,10 @@ def main() -> None:
 
     logger.info("All startup checks passed. Connecting to RQ...")
 
+    from app.infra.authz.casbin_enforcer import spawn_policy_listener
+
+    spawn_policy_listener()
+
     from rq import Queue, Worker
 
     from app.infra.redis import get_redis_client

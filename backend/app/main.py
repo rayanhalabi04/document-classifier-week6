@@ -10,6 +10,7 @@ from app.api import audit, auth, batches, health, predictions, roles, users
 from app.db.session import SessionFactory, engine
 from app.infra.cache import init_cache
 from app.infra.logging import get_logger
+from app.infra.authz.casbin_enforcer import spawn_policy_listener
 from app.services.auth import load_jwt_secret
 from app.services.startup_authorization import validate_authorization_startup
 from app.services.startup_validation import run_api_readiness_checks
@@ -38,6 +39,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
         logger.info("Initializing cache backend...")
         await init_cache()
+
+        logger.info("Starting Casbin policy listener...")
+        spawn_policy_listener()
 
         fail_fast = False
         logger.info("API started successfully")

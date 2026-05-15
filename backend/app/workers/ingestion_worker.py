@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import signal
 import sys
 import time
 import uuid
@@ -236,16 +237,32 @@ def main() -> None:
     if not _run_startup_checks():
         sys.exit(1)
 
+    from app.infra.authz.casbin_enforcer import spawn_policy_listener
+
+    spawn_policy_listener()
+
     logger.info(
         "Ingestion worker running (poll=%ds, stability=%ds)",
         POLL_INTERVAL_SECONDS,
         STABILITY_INTERVAL_SECONDS,
     )
 
+    shutdown_requested = False
+
+    def _on_signal(signum: int, frame: object) -> None:
+        nonlocal shutdown_requested
+        logger.info(
+            "Received signal %s — shutting down gracefully...", signum
+        )
+        shutdown_requested = True
+
+    signal.signal(signal.SIGTERM, _on_signal)
+    signal.signal(signal.SIGINT, _on_signal)
+
     seen_files: dict[str, _SeenFile] = {}
     consecutive_failures = 0
 
-    while True:
+    while not shutdown_requested:
         try:
             sftp = _get_sftp_adapter()
             with sftp:
@@ -263,7 +280,7 @@ def main() -> None:
                 # Reset backoff on successful SFTP connection
                 consecutive_failures = 0
 
-                while True:
+                while not shutdown_requested:
                     # Fresh session per poll cycle to avoid stale connections
                     with SessionFactory() as session:
                         service = IngestionService(session)
@@ -272,10 +289,9 @@ def main() -> None:
                             _process_file(sftp, file_info, service, model_metadata_id)
 
                     time.sleep(POLL_INTERVAL_SECONDS)
-        except KeyboardInterrupt:
-            logger.info("Ingestion worker shutting down.")
-            break
         except Exception as exc:
+            if shutdown_requested:
+                break
             consecutive_failures += 1
             delay = min(_BACKOFF_CAP_SECONDS, _BACKOFF_BASE_SECONDS * (2 ** (consecutive_failures - 1)))
             logger.error(
@@ -285,6 +301,8 @@ def main() -> None:
                 exc,
             )
             time.sleep(delay)
+
+    logger.info("Ingestion worker shut down gracefully.")
 
 
 if __name__ == "__main__":
