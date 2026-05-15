@@ -1,12 +1,13 @@
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_permission
 from app.domain.errors import PermissionDenied
-from app.domain.roles import Action, Resource
+from app.domain.roles import Action, Resource, Role
 from app.domain.users import AdminUserProfile, CurrentUserProfile
 from app.infra.db import get_session
 from app.services.auth import current_active_user
@@ -20,11 +21,22 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 class InviteUserRequest(BaseModel):
-    email: str
+    email: str = Field(min_length=5, max_length=320)
 
 
 class ReplaceRolesRequest(BaseModel):
-    roles: list[str]
+    roles: list[str] = Field(min_length=1, max_length=10)
+
+    @field_validator("roles")
+    @classmethod
+    def _validate_roles(cls, v: list[str]) -> list[str]:
+        valid = {r.value for r in Role}
+        for role in v:
+            if role not in valid:
+                raise ValueError(
+                    f"'{role}' is not a valid role. Must be one of: {sorted(valid)}"
+                )
+        return v
 
 
 def get_role_management_service(
@@ -60,8 +72,10 @@ def get_current_user(
 def list_users(
     _admin=Depends(require_permission(Resource.USERS, Action.MANAGE)),
     user_service: UserManagementService = Depends(get_user_management_service),
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[AdminUserProfile]:
-    return user_service.list_users()
+    return user_service.list_users(limit=limit, offset=offset)
 
 
 @router.post(

@@ -139,7 +139,7 @@ def _prediction_to_read(
 
 @router.patch("/{prediction_id}/relabel")
 def relabel_prediction(
-    prediction_id: str,
+    prediction_id: uuid.UUID,
     user=Depends(require_permission(Resource.PREDICTIONS, Action.RELABEL)),
 ) -> None:
     raise HTTPException(

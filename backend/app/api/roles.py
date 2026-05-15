@@ -16,7 +16,12 @@ class ReplaceRolesRequest(BaseModel):
     roles: list[str]
 
 
-@router.put("/{user_id}")
+class ReplaceRolesResponse(BaseModel):
+    user_id: uuid.UUID
+    roles: list[str]
+
+
+@router.put("/{user_id}", response_model=ReplaceRolesResponse)
 def update_user_role(
     user_id: uuid.UUID,
     request: ReplaceRolesRequest,

@@ -62,7 +62,7 @@ def test_admin_can_list_users() -> None:
     assert response.json()[0]["email"] == "reviewer@example.com"
     assert response.json()[0]["roles"] == ["reviewer"]
     assert "hashed_password" not in response.json()[0]
-    service.list_users.assert_called_once_with()
+    service.list_users.assert_called_once_with(limit=50, offset=0)
 
 
 def test_reviewer_or_auditor_cannot_list_users() -> None:

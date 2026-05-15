@@ -1,5 +1,6 @@
 ﻿from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from app.db.session import SessionFactory
 from app.services.startup_validation import run_api_readiness_checks
@@ -7,12 +8,22 @@ from app.services.startup_validation import run_api_readiness_checks
 router = APIRouter(prefix="/health", tags=["health"])
 
 
-@router.get("/live")
+class HealthLiveResponse(BaseModel):
+    status: str
+
+
+class HealthReadyResponse(BaseModel):
+    status: str
+    checks: dict[str, str] | None = None
+    message: str | None = None
+
+
+@router.get("/live", response_model=HealthLiveResponse)
 def health_live() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/ready")
+@router.get("/ready", response_model=HealthReadyResponse)
 def health_ready() -> JSONResponse:
     failures = run_api_readiness_checks(SessionFactory)
     if not failures:
