@@ -55,38 +55,36 @@ def reload_enforcer() -> None:
 
 def can(user_id: str, resource: Resource | str, action: Action | str) -> bool:
     enforcer = get_enforcer()
-    enforcer.load_policy()
     return bool(enforcer.enforce(str(user_id), str(resource), str(action)))
 
 
 def assign_role(user_id: str, role: Role | str) -> bool:
     enforcer = get_enforcer()
-    enforcer.load_policy()
+    reload_enforcer()
     return bool(enforcer.add_role_for_user(str(user_id), str(role)))
 
 
 def remove_role(user_id: str, role: Role | str) -> bool:
     enforcer = get_enforcer()
-    enforcer.load_policy()
+    reload_enforcer()
     return bool(enforcer.delete_role_for_user(str(user_id), str(role)))
 
 
 def remove_roles_for_user(user_id: str) -> bool:
     enforcer = get_enforcer()
-    enforcer.load_policy()
+    reload_enforcer()
     return bool(enforcer.delete_roles_for_user(str(user_id)))
 
 
 def get_roles_for_user(user_id: str) -> list[str]:
     enforcer = get_enforcer()
-    enforcer.load_policy()
     return list(enforcer.get_roles_for_user(str(user_id)))
 
 
 def seed_baseline_policies() -> int:
     """Insert baseline role permissions if missing. Returns rows added."""
     enforcer = get_enforcer()
-    enforcer.load_policy()
+    reload_enforcer()
     added = 0
     for role, resource, action in sorted(BASELINE_POLICIES):
         if enforcer.add_policy(str(role), str(resource), str(action)):

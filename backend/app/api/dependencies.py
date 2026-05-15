@@ -7,6 +7,7 @@ from fastapi import Depends, HTTPException, status
 
 from app.domain.errors import PermissionDenied
 from app.domain.roles import Action, Resource
+from app.infra.minio import MinIOAdapter
 from app.services.auth import current_active_user
 from app.services.authorization import AuthorizationService
 
@@ -14,6 +15,11 @@ from app.services.authorization import AuthorizationService
 def get_authorization_service() -> AuthorizationService:
     """Return the Casbin-backed authorization service."""
     return AuthorizationService()
+
+
+def get_minio_adapter() -> MinIOAdapter:
+    """Return a MinIO adapter wired from application settings."""
+    return MinIOAdapter()
 
 
 def require_permission(

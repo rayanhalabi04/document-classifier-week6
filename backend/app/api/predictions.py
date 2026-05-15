@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.api.dependencies import require_permission
+from app.api.dependencies import get_minio_adapter, require_permission
 from app.domain.errors import (
     InvalidReviewLabel,
     PermissionDenied,
@@ -95,6 +95,7 @@ def get_prediction_overlay(
     prediction_id: uuid.UUID,
     _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
     session: Session = Depends(get_session),
+    minio: MinIOAdapter = Depends(get_minio_adapter),
 ) -> StreamingResponse:
     repo = PredictionRepository(session)
     overlay = repo.get_overlay_by_prediction(prediction_id)
@@ -104,7 +105,6 @@ def get_prediction_overlay(
             detail="Overlay not found.",
         )
 
-    minio = MinIOAdapter()
     data = minio.download_file(overlay.blob_bucket, overlay.blob_key)
     return StreamingResponse(BytesIO(data), media_type="image/png")
 

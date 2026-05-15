@@ -1,18 +1,20 @@
-﻿from collections.abc import AsyncGenerator
+﻿from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
-import logging
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
+from fastapi_cache import FastAPICache
 
 from app.api import audit, auth, batches, health, predictions, roles, users
 from app.db.session import SessionFactory, engine
 from app.infra.cache import init_cache
+from app.infra.logging import get_logger
 from app.services.auth import load_jwt_secret
 from app.services.startup_authorization import validate_authorization_startup
 from app.services.startup_validation import run_api_readiness_checks
-from fastapi_cache import FastAPICache
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
@@ -61,6 +63,20 @@ def create_app() -> FastAPI:
         description="Authenticated internal document classification service API.",
         lifespan=lifespan,
     )
+
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next: Callable) -> Response:
+        start = time.monotonic()
+        response = await call_next(request)
+        elapsed = time.monotonic() - start
+        logger.info(
+            "request",
+            method=request.method,
+            path=request.url.path,
+            status=response.status_code,
+            elapsed_ms=round(elapsed * 1000, 2),
+        )
+        return response
 
     app.include_router(health.router)
     app.include_router(auth.router)
