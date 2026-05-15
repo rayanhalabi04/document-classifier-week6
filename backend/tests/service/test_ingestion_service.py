@@ -222,7 +222,8 @@ class TestSuccessfulIngestion:
                 file_data=TIFF_MAGIC,
                 model_metadata_id=MODEL_METADATA_ID,
             )
-            mock_session.commit.assert_called_once()
+            mock_session.commit.assert_called()
+            assert mock_session.commit.call_count == 2
 
     def test_cache_failure_does_not_raise(self, mock_session, mock_batch):
         with (

@@ -104,6 +104,11 @@ class IngestionService:
         document.blob_key = blob_key
         document.ingestion_status = IngestionStatus.stored
 
+        # Commit document and batch before enqueuing RQ job.
+        # If the enqueue fails after this point the document is durable
+        # with status=stored — the next poll will re-enqueue.
+        self._session.commit()
+
         rq_job_id = self._enqueue_classification(document.id, model_metadata_id)
 
         job = ClassificationJob(

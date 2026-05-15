@@ -6,6 +6,7 @@ through UserRepository and JWT signing material comes from Vault.
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from collections.abc import AsyncGenerator, Generator
 from typing import Any, Optional
@@ -43,17 +44,21 @@ class UserUpdate(schemas.BaseUserUpdate):
 
 
 class SyncUserDatabase(BaseUserDatabase[User, uuid.UUID]):
-    """fastapi-users database adapter backed by the sync repository layer."""
+    """fastapi-users database adapter backed by the sync repository layer.
+
+    All sync DB calls are offloaded to a thread pool via asyncio.to_thread
+    so they never block the FastAPI event loop.
+    """
 
     def __init__(self, session: Session) -> None:
         self._session = session
         self._users = UserRepository(session)
 
     async def get(self, id: uuid.UUID) -> Optional[User]:
-        return self._users.get_by_id(id)
+        return await asyncio.to_thread(self._users.get_by_id, id)
 
     async def get_by_email(self, email: str) -> Optional[User]:
-        return self._users.get_by_email(email)
+        return await asyncio.to_thread(self._users.get_by_email, email)
 
     async def get_by_oauth_account(
         self,
@@ -63,21 +68,30 @@ class SyncUserDatabase(BaseUserDatabase[User, uuid.UUID]):
         return None
 
     async def create(self, create_dict: dict[str, Any]) -> User:
-        user = User(**create_dict)
-        self._users.create(user)
-        self._session.commit()
-        return user
+        def _create() -> User:
+            user = User(**create_dict)
+            self._users.create(user)
+            self._session.commit()
+            return user
+
+        return await asyncio.to_thread(_create)
 
     async def update(self, user: User, update_dict: dict[str, Any]) -> User:
-        for field, value in update_dict.items():
-            setattr(user, field, value)
-        self._users.update(user)
-        self._session.commit()
-        return user
+        def _update() -> User:
+            for field, value in update_dict.items():
+                setattr(user, field, value)
+            self._users.update(user)
+            self._session.commit()
+            return user
+
+        return await asyncio.to_thread(_update)
 
     async def delete(self, user: User) -> None:
-        self._users.delete(user)
-        self._session.commit()
+        def _delete() -> None:
+            self._users.delete(user)
+            self._session.commit()
+
+        await asyncio.to_thread(_delete)
 
     async def add_oauth_account(
         self,
