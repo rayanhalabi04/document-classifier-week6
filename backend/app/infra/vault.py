@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import os
-
 import hvac
+
+from app.config import settings
 
 
 class VaultError(Exception):
@@ -56,8 +56,8 @@ class VaultAdapter:
         Raises:
             VaultConnectionError: If the client cannot authenticate.
         """
-        self._url = url or os.environ.get("VAULT_ADDR", "http://localhost:8200")
-        self._token = token or os.environ.get("VAULT_TOKEN", "")
+        self._url = url or settings.vault_addr
+        self._token = token or settings.vault_token
         if not self._token:
             raise VaultConnectionError(
                 "Vault token not provided and VAULT_TOKEN env var not set"

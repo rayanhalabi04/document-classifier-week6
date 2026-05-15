@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from io import BytesIO
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
@@ -55,7 +55,7 @@ def get_prediction_review_service(
 
 
 @router.get("/recent", response_model=list[PredictionRead])
-async def list_recent_predictions(
+def list_recent_predictions(
     _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
     session: Session = Depends(get_session),
     review_eligible: bool | None = Query(None),
@@ -75,7 +75,7 @@ async def list_recent_predictions(
 
 
 @router.get("/{prediction_id}", response_model=PredictionRead)
-async def get_prediction(
+def get_prediction(
     prediction_id: uuid.UUID,
     _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
     session: Session = Depends(get_session),
@@ -91,7 +91,7 @@ async def get_prediction(
 
 
 @router.get("/{prediction_id}/overlay")
-async def get_prediction_overlay(
+def get_prediction_overlay(
     prediction_id: uuid.UUID,
     _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
     session: Session = Depends(get_session),
@@ -135,7 +135,7 @@ def _prediction_to_read(
 
 
 @router.patch("/{prediction_id}/relabel")
-async def relabel_prediction(
+def relabel_prediction(
     prediction_id: str,
     user=Depends(require_permission(Resource.PREDICTIONS, Action.RELABEL)),
 ) -> None:
@@ -149,12 +149,12 @@ async def relabel_prediction(
     "/{prediction_id}/review",
     response_model=ReviewPredictionResponse,
 )
-async def review_prediction(
+def review_prediction(
     prediction_id: uuid.UUID,
     request: ReviewPredictionRequest,
     reviewer=Depends(require_permission(Resource.PREDICTIONS, Action.RELABEL)),
     review_service: PredictionReviewService = Depends(get_prediction_review_service),
-) -> Any:
+) -> ReviewPredictionResponse:
     if request.reviewed_label is not None and request.corrected_label is not None:
         raise HTTPException(
             status_code=422,

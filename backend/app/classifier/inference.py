@@ -38,7 +38,7 @@ def run_inference(
     """
     model.eval()
 
-    with torch.no_grad():
+    with torch.inference_mode():
         logits = model(tensor.float())  # float32, no AMP
 
     probs = torch.softmax(logits, dim=1)[0]  # shape (16,)

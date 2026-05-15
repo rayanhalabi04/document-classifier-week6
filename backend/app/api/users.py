@@ -42,7 +42,7 @@ def get_user_management_service(
 
 
 @router.get("/me", response_model=CurrentUserProfile)
-async def get_current_user(
+def get_current_user(
     user=Depends(current_active_user),
     role_service: RoleManagementService = Depends(get_role_management_service),
 ) -> CurrentUserProfile:
@@ -57,7 +57,7 @@ async def get_current_user(
 
 
 @router.get("", response_model=list[AdminUserProfile])
-async def list_users(
+def list_users(
     _admin=Depends(require_permission(Resource.USERS, Action.MANAGE)),
     user_service: UserManagementService = Depends(get_user_management_service),
 ) -> list[AdminUserProfile]:
@@ -69,7 +69,7 @@ async def list_users(
     response_model=AdminUserProfile,
     status_code=status.HTTP_201_CREATED,
 )
-async def invite_user(
+def invite_user(
     request: InviteUserRequest,
     acting_admin=Depends(require_permission(Resource.USERS, Action.MANAGE)),
     user_service: UserManagementService = Depends(get_user_management_service),
@@ -87,7 +87,7 @@ async def invite_user(
 
 
 @router.put("/{user_id}/roles")
-async def replace_user_roles(
+def replace_user_roles(
     user_id: uuid.UUID,
     request: ReplaceRolesRequest,
     acting_admin=Depends(require_permission(Resource.ROLES, Action.MANAGE)),

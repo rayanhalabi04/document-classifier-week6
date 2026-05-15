@@ -13,7 +13,7 @@ raw exception tracebacks in user-facing responses.
 
 import contextvars
 import logging
-import os
+from app.config import settings
 import sys
 
 import structlog
@@ -57,9 +57,9 @@ def configure_logging() -> None:
     Uses JSON renderer in production (LOG_FORMAT=json) and colored console
     output otherwise.
     """
-    log_level_name = os.environ.get("LOG_LEVEL", "INFO").upper()
+    log_level_name = settings.log_level.upper()
     log_level = getattr(logging, log_level_name, logging.INFO)
-    log_format = os.environ.get("LOG_FORMAT", "console")
+    log_format = settings.log_format
 
     shared_processors: list[structlog.types.Processor] = [
         structlog.contextvars.merge_contextvars,

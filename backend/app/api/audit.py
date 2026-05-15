@@ -21,7 +21,7 @@ def get_audit_log_service(
 
 
 @router.get("", response_model=list[AuditEventRead])
-async def list_audit_events(
+def list_audit_events(
     _user=Depends(require_permission(Resource.AUDIT_LOGS, Action.READ)),
     audit_service: AuditLogService = Depends(get_audit_log_service),
     actor_user_id: uuid.UUID | None = None,

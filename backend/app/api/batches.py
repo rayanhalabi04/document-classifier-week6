@@ -13,7 +13,7 @@ router = APIRouter(prefix="/batches", tags=["batches"])
 
 
 @router.get("", response_model=list[BatchRead])
-async def list_batches(
+def list_batches(
     _user=Depends(require_permission(Resource.BATCHES, Action.READ)),
     session: Session = Depends(get_session),
 ) -> list[BatchRead]:
@@ -21,7 +21,7 @@ async def list_batches(
 
 
 @router.get("/{batch_id}", response_model=BatchRead)
-async def get_batch(
+def get_batch(
     batch_id: uuid.UUID,
     _user=Depends(require_permission(Resource.BATCHES, Action.READ)),
     session: Session = Depends(get_session),

@@ -5,15 +5,12 @@ Workers and services use SessionFactory directly. The API uses the get_session
 dependency from app.infra.db for request-scoped sessions.
 """
 
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://docuser:docpass@localhost:5432/docclassifier",
-)
+from app.config import settings
+
+DATABASE_URL = settings.database_url
 
 engine = create_engine(
     DATABASE_URL,

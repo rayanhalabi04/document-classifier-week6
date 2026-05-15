@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-import os
 from io import BytesIO
 
 from minio import Minio, S3Error
 from minio.commonconfig import CopySource
+
+from app.config import settings
 
 
 class MinIOError(Exception):
@@ -58,11 +59,9 @@ class MinIOAdapter:
             secret_key: MinIO secret key. Falls back to MINIO_ROOT_PASSWORD env var.
             secure: Whether to use HTTPS. Defaults to False for local dev.
         """
-        self._endpoint = endpoint or os.environ.get("MINIO_ENDPOINT", "localhost:9000")
-        self._access_key = access_key or os.environ.get("MINIO_ROOT_USER", "minioadmin")
-        self._secret_key = secret_key or os.environ.get(
-            "MINIO_ROOT_PASSWORD", "minioadmin"
-        )
+        self._endpoint = endpoint or settings.minio_endpoint
+        self._access_key = access_key or settings.minio_root_user
+        self._secret_key = secret_key or settings.minio_root_password
         self._secure = secure
 
         try:

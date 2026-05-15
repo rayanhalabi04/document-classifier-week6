@@ -17,7 +17,7 @@ class ReplaceRolesRequest(BaseModel):
 
 
 @router.put("/{user_id}")
-async def update_user_role(
+def update_user_role(
     user_id: uuid.UUID,
     request: ReplaceRolesRequest,
     acting_user=Depends(require_permission(Resource.ROLES, Action.MANAGE)),

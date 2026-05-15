@@ -273,13 +273,12 @@ def check_connection() -> None:
     Module-level function called by ingestion worker startup validation.
     Connects, lists the drop directory, and confirms it is accessible.
     """
-    import os
+    from app.config import settings
 
-    host = os.environ.get("SFTP_HOST", "sftp")
-    port = int(os.environ.get("SFTP_PORT", "22"))
-    user = os.environ.get("SFTP_USER", "vendor")
-    password = os.environ.get("SFTP_PASSWORD", "vendorpass")
-    drop_dir = os.environ.get("SFTP_DROP_DIR", "drop")
-
-    with SFTPAdapter(host, port, user, password) as sftp:
-        sftp.list_files(drop_dir)
+    with SFTPAdapter(
+        settings.sftp_host,
+        settings.sftp_port,
+        settings.sftp_user,
+        settings.sftp_password,
+    ) as sftp:
+        sftp.list_files(settings.sftp_drop_dir)

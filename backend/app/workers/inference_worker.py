@@ -150,10 +150,9 @@ def _run_pipeline(blob_key: str) -> Tuple[InferenceResult, bytes]:
 
 def main() -> None:
     """Inference worker entrypoint — validate startup then consume jobs."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    )
+    from app.infra.logging import configure_logging
+
+    configure_logging()
 
     logger.info("Starting inference worker startup checks...")
     failures = run_inference_worker_checks()

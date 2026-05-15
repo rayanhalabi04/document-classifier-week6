@@ -18,13 +18,13 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import os
 import sys
 import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
+from app.config import settings
 from app.db.session import SessionFactory
 from app.domain.errors import (
     DuplicateDocumentError,
@@ -38,9 +38,11 @@ from app.services.startup_validation import run_ingestion_worker_checks
 
 logger = logging.getLogger(__name__)
 
-POLL_INTERVAL_SECONDS = int(os.environ.get("INGESTION_POLL_INTERVAL", "5"))
-STABILITY_INTERVAL_SECONDS = int(os.environ.get("STABILITY_INTERVAL", "3"))
-SFTP_DROP_DIR = os.environ.get("SFTP_DROP_DIR", "drop")
+POLL_INTERVAL_SECONDS = settings.ingestion_poll_interval
+STABILITY_INTERVAL_SECONDS = settings.ingestion_stability_interval
+SFTP_DROP_DIR = settings.sftp_drop_dir
+_BACKOFF_BASE_SECONDS = POLL_INTERVAL_SECONDS
+_BACKOFF_CAP_SECONDS = 60
 
 
 @dataclass
@@ -212,12 +214,13 @@ def _process_file(
 
 
 def _get_sftp_adapter() -> SFTPAdapter:
-    """Build an SFTPAdapter from environment variables."""
-    host = os.environ.get("SFTP_HOST", "sftp")
-    port = int(os.environ.get("SFTP_PORT", "22"))
-    user = os.environ.get("SFTP_USER", "vendor")
-    password = os.environ.get("SFTP_PASSWORD", "vendorpass")
-    return SFTPAdapter(host, port, user, password)
+    """Build an SFTPAdapter from application settings."""
+    return SFTPAdapter(
+        settings.sftp_host,
+        settings.sftp_port,
+        settings.sftp_user,
+        settings.sftp_password,
+    )
 
 
 def main() -> None:
@@ -240,44 +243,48 @@ def main() -> None:
     )
 
     seen_files: dict[str, _SeenFile] = {}
+    consecutive_failures = 0
 
-    # Outer retry loop — if connection drops, keep trying
     while True:
         try:
             sftp = _get_sftp_adapter()
             with sftp:
-                session = SessionFactory()
-                try:
+                # Ensure model metadata is available
+                with SessionFactory() as session:
                     model_metadata_id = _get_model_metadata_id(session)
-                    if model_metadata_id is None:
-                        logger.error(
-                            "Cannot enqueue jobs without model metadata. "
-                            "Seed model_metadata table first."
-                        )
-                        time.sleep(POLL_INTERVAL_SECONDS)
-                        continue
+                if model_metadata_id is None:
+                    logger.error(
+                        "Cannot enqueue jobs without model metadata. "
+                        "Seed model_metadata table first."
+                    )
+                    time.sleep(POLL_INTERVAL_SECONDS)
+                    continue
 
-                    service = IngestionService(session)
+                # Reset backoff on successful SFTP connection
+                consecutive_failures = 0
 
-                    while True:
+                while True:
+                    # Fresh session per poll cycle to avoid stale connections
+                    with SessionFactory() as session:
+                        service = IngestionService(session)
                         stable = _detect_stable_files(sftp, seen_files)
-
                         for file_info in stable:
                             _process_file(sftp, file_info, service, model_metadata_id)
 
-                        time.sleep(POLL_INTERVAL_SECONDS)
-                finally:
-                    session.close()
+                    time.sleep(POLL_INTERVAL_SECONDS)
         except KeyboardInterrupt:
             logger.info("Ingestion worker shutting down.")
             break
         except Exception as exc:
+            consecutive_failures += 1
+            delay = min(_BACKOFF_CAP_SECONDS, _BACKOFF_BASE_SECONDS * (2 ** (consecutive_failures - 1)))
             logger.error(
-                "Ingestion worker loop error (will retry in %ds): %s",
-                POLL_INTERVAL_SECONDS,
+                "Ingestion worker loop error (failures=%d, retry in %ds): %s",
+                consecutive_failures,
+                delay,
                 exc,
             )
-            time.sleep(POLL_INTERVAL_SECONDS)
+            time.sleep(delay)
 
 
 if __name__ == "__main__":

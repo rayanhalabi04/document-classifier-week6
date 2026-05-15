@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from unittest.mock import MagicMock, Mock, patch
 
 import hvac
@@ -214,8 +213,9 @@ class TestVaultAdapterInit:
     """Tests for VaultAdapter initialization."""
 
     def test_raises_vault_connection_error_when_no_token(self):
-        """Raises VaultConnectionError when no token is provided and env var unset."""
-        with patch.dict(os.environ, {}, clear=True):
+        """Raises VaultConnectionError when no token is provided and settings has none."""
+        with patch("app.infra.vault.settings") as mock_settings:
+            mock_settings.vault_token = ""
             with patch("app.infra.vault.hvac.Client"):
                 with pytest.raises(VaultConnectionError, match="token"):
                     VaultAdapter(url="http://vault:8200")
@@ -231,10 +231,10 @@ class TestVaultAdapterInit:
                 VaultAdapter(url="http://vault:8200", token="bad-token")
 
     def test_uses_env_vars_as_fallbacks(self, mock_hvac_client):
-        """Uses VAULT_ADDR and VAULT_TOKEN env vars when constructor args not provided."""
-        with patch.dict(
-            os.environ, {"VAULT_ADDR": "http://custom:8200", "VAULT_TOKEN": "env-token"}
-        ):
+        """Uses settings defaults when constructor args not provided."""
+        with patch("app.infra.vault.settings") as mock_settings:
+            mock_settings.vault_addr = "http://custom:8200"
+            mock_settings.vault_token = "env-token"
             with patch(
                 "app.infra.vault.hvac.Client", return_value=mock_hvac_client
             ) as mock_client_cls:
