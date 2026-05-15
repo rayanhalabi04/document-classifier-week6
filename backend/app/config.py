@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_format: str = "console"
 
+    # ── Cache ─────────────────────────────────────────────────
+    cache_prefix: str = "dc"
+    cache_default_ttl: int = 300  # global fallback TTL in seconds
+
     model_config = {"env_prefix": "", "case_sensitive": False}
 
 

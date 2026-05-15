@@ -15,6 +15,12 @@ from fastapi.testclient import TestClient
 
 from app.domain.errors import PermissionDenied
 from app.main import app
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+
+# ── Cache init for tests ────────────────────────────────────────
+
+FastAPICache.init(InMemoryBackend(), prefix="dc-test")
 
 
 # ── UUID fixtures ────────────────────────────────────────────────

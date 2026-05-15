@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_cache.decorator import cache
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_permission
@@ -13,6 +14,7 @@ router = APIRouter(prefix="/batches", tags=["batches"])
 
 
 @router.get("", response_model=list[BatchRead])
+@cache(expire=60)
 def list_batches(
     _user=Depends(require_permission(Resource.BATCHES, Action.READ)),
     session: Session = Depends(get_session),
@@ -21,6 +23,7 @@ def list_batches(
 
 
 @router.get("/{batch_id}", response_model=BatchRead)
+@cache(expire=60)
 def get_batch(
     batch_id: uuid.UUID,
     _user=Depends(require_permission(Resource.BATCHES, Action.READ)),

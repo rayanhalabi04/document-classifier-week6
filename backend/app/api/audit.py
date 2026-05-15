@@ -2,6 +2,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from fastapi_cache.decorator import cache
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_permission
@@ -21,6 +22,7 @@ def get_audit_log_service(
 
 
 @router.get("", response_model=list[AuditEventRead])
+@cache(expire=30)
 def list_audit_events(
     _user=Depends(require_permission(Resource.AUDIT_LOGS, Action.READ)),
     audit_service: AuditLogService = Depends(get_audit_log_service),

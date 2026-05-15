@@ -11,23 +11,34 @@ import logging
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from redis.exceptions import RedisError
 
+from app.config import settings
 from app.infra.redis import get_async_redis_client, get_redis_client
 
 logger = logging.getLogger(__name__)
-
-CACHE_PREFIX = "fastapi-cache"
 
 
 async def init_cache() -> None:
     """Initialise the fastapi-cache2 Redis backend.
 
     Call once from the FastAPI lifespan context manager after the event
-    loop is running. Uses the async Redis client required by RedisBackend.
+    loop is running.  Fails gracefully — if Redis is unreachable the API
+    starts without cache protection and every @cache decorator degrades
+    to a pass-through (cache miss, DB hit).
     """
-    async_client = get_async_redis_client()
-    FastAPICache.init(RedisBackend(async_client), prefix=CACHE_PREFIX)
-    logger.info("fastapi-cache2 Redis backend initialised")
+    try:
+        async_client = get_async_redis_client()
+        FastAPICache.init(
+            RedisBackend(async_client),
+            prefix=settings.cache_prefix,
+            expire=settings.cache_default_ttl,
+        )
+        logger.info("fastapi-cache2 Redis backend initialised")
+    except RedisError:
+        logger.warning(
+            "Redis unreachable — cache disabled. API will serve without cache."
+        )
 
 
 def delete_cache_key(key: str) -> None:
@@ -45,5 +56,5 @@ def delete_cache_key(key: str) -> None:
         redis.exceptions.RedisError: On Redis communication failure.
             cache_invalidation.py wraps this in CacheInvalidationError.
     """
-    full_key = f"{CACHE_PREFIX}:{key}"
+    full_key = f"{settings.cache_prefix}:{key}"
     get_redis_client().delete(full_key)

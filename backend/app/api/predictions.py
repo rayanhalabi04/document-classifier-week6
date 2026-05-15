@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
+from fastapi_cache.decorator import cache
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -55,6 +56,7 @@ def get_prediction_review_service(
 
 
 @router.get("/recent", response_model=list[PredictionRead])
+@cache(expire=30)
 def list_recent_predictions(
     _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
     session: Session = Depends(get_session),
@@ -75,6 +77,7 @@ def list_recent_predictions(
 
 
 @router.get("/{prediction_id}", response_model=PredictionRead)
+@cache(expire=60)
 def get_prediction(
     prediction_id: uuid.UUID,
     _user=Depends(require_permission(Resource.PREDICTIONS, Action.READ)),
