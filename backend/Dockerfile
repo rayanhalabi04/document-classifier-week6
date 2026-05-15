@@ -10,11 +10,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY pyproject.toml .
-COPY app/ ./app/
-RUN pip install --upgrade pip uv \
+RUN mkdir -p app && touch app/__init__.py \
+    && pip install uv \
     && uv pip install --system \
         --extra-index-url https://download.pytorch.org/whl/cpu \
-        -e .
+        -e . \
+    && rm -rf app
+
+COPY app/ ./app/
+RUN uv pip install --system -e . --no-deps
 
 COPY alembic/ ./alembic/
 COPY alembic.ini .

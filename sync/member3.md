@@ -102,20 +102,25 @@ Tested with golden-set TIFF (135KB). All startup checks pass. API healthy on :80
 
 ---
 
-## Remaining
+## All Done
+
+All tasks complete — infrastructure, SFTP, MinIO, Vault, Docker Compose, documentation, and demo checklist.
 
 | Task | What | Status |
 |------|------|--------|
-| **T039** | Vault bootstrap docs | ⬜ Needs full system |
-| **T047** | Runbook (`RUNBOOK.md`) | ⬜ Needs full system |
-| **T049** | Presentation/demo checklist | ⬜ Needs full system |
-
----
-
-## Blocked by
-
-- **No blockers** — all 3 teammates have shipped their code. Full end-to-end pipeline is possible.
-- Documentation tasks (T039, T047, T049) are now unblocked.
+| **T058** | Repository ignore files | ✅ |
+| **T040** | Docker Compose local stack | ✅ |
+| **T041** | Dockerfile | ✅ |
+| **T038** | Vault adapter | ✅ |
+| **T024** | SFTP adapter | ✅ |
+| **T035** | MinIO adapter | ✅ |
+| **T025** | Stable-file detection | ✅ |
+| **T026** | Duplicate/invalid-file handling | ✅ |
+| **T027** | Ingestion worker loop | ✅ |
+| **T036** | Original TIFF storage in MinIO | ✅ |
+| **T039** | Vault bootstrap docs | ✅ `docs/SECURITY.md` |
+| **T047** | Runbook | ✅ `docs/RUNBOOK.md` |
+| **T049** | Demo checklist | ✅ `docs/demo-checklist.md` |
 
 ---
 

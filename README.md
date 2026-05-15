@@ -14,6 +14,7 @@ authenticated REST API with reviewer relabeling and full audit logging.
 ### Prerequisites
 
 - Docker Desktop (with Compose v2)
+- Git LFS (for classifier model weights)
 - Python 3.11
 - Git
 
@@ -22,6 +23,7 @@ authenticated REST API with reviewer relabeling and full audit logging.
 ```bash
 git clone <repo-url>
 cd document-classifier-week6
+git lfs pull
 cp backend/.env.example backend/.env
 # Edit backend/.env with your local values (see .env.example for required keys)
 ```
@@ -44,23 +46,40 @@ pip install -e ".[dev]"
 ### 3. Start the Docker stack
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-Waits for Postgres, Redis, MinIO, Vault, and SFTP to be healthy before
-the API and workers start.
+Starts 10 services: postgres, redis, minio, vault, sftp, pgadmin, api, frontend,
+ingestion-worker, inference-worker. All health-checked before starting.
+
+| URL | Service |
+|-----|---------|
+| http://localhost:8000 | FastAPI |
+| http://localhost:5173 | Frontend dashboard |
+| http://localhost:5050 | pgAdmin |
+| http://localhost:9001 | MinIO Console |
+| http://localhost:8200 | Vault |
 
 ### 4. Run database migrations
 
 ```bash
-docker compose exec api alembic upgrade head
+docker compose run --rm api alembic upgrade head
 ```
 
-### 5. Seed Vault secrets and users
+### 5. Seed all data
 
 ```bash
-docker compose exec api python scripts/seed_vault.py
-docker compose exec api python scripts/seed_users.py
+docker compose run --rm api python scripts/seed_vault.py
+docker compose run --rm api python scripts/seed_model_metadata.py
+docker compose run --rm api python scripts/seed_users.py
+docker compose run --rm api python scripts/seed_casbin_policies.py
+docker compose run --rm api python scripts/seed_demo_users.py
+```
+
+Or use the one-shot Make target:
+
+```bash
+make setup   # runs all of the above + git lfs pull
 ```
 
 ### 6. Verify everything is running
@@ -70,8 +89,18 @@ curl http://localhost:8000/health/ready
 # → {"status": "ok"}
 ```
 
+### Demo Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@example.com` | `admin` |
+| Reviewer | `reviewer@example.com` | `reviewerpass` |
+| Auditor | `auditor@example.com` | `auditorpass` |
+
+Log in at http://localhost:5173.
+
 See [docs/RUNBOOK.md](docs/RUNBOOK.md) for the full local workflow including
-dropping a TIFF, checking classification results, and running the demo.
+dropping a TIFF, checking classification results, and troubleshooting.
 
 ---
 
@@ -202,12 +231,17 @@ def relabel(self, prediction_id: uuid.UUID, review_label: str) -> Prediction:
 
 ---
 
-## Architecture
+## Documentation
 
-See [docs/ARCH.md](docs/ARCH.md) for module boundaries, data flow diagrams,
-and the reasoning behind key design decisions.
-
-See [docs/DECISIONS.md](docs/DECISIONS.md) for the full architecture decision log.
+| Doc | Purpose |
+|-----|---------|
+| [docs/ARCH.md](docs/ARCH.md) | Module boundaries, data flow diagrams, design decisions |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | Architecture decision record (ADR) log |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Day-to-day operations, testing, seeding, troubleshooting |
+| [docs/SECURITY.md](docs/SECURITY.md) | Vault secrets map, bootstrap, dev vs production guidance |
+| [docs/demo-checklist.md](docs/demo-checklist.md) | Step-by-step demo walkthrough with talking points |
+| [docs/COLLABORATION.md](docs/COLLABORATION.md) | Team collaboration and workflow guide |
+| [docs/end-to-end-flow.md](docs/end-to-end-flow.md) | Full end-to-end flow explanation and architecture diagram |
 
 ---
 

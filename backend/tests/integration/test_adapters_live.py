@@ -1,21 +1,30 @@
 """Live integration test for Vault, MinIO, and SFTP adapters.
 
-Run with: docker compose up -d postgres redis minio vault sftp
-          python tests/integration/test_adapters_live.py
+Run from host:
+    docker compose up -d postgres redis minio vault sftp
+    python tests/integration/test_adapters_live.py
 
-Requires the services to be running and Vault to be seeded:
-    vault kv put secret/jwt secret=my-jwt-secret-key
-    vault kv put secret/postgres user=postgres password=changeme db=document_classifier
-    vault kv put secret/minio access_key=minioadmin secret_key=minioadmin
-    vault kv put secret/sftp user=vendor password=vendorpass host=sftp port=22
-    vault kv put secret/redis url=redis://redis:6379/0
+Run inside Docker:
+    docker compose run --rm -v ./tests:/app/tests:ro api pytest tests/integration/ -v
+
+Service addresses are read from environment variables (same ones the app uses),
+defaulting to localhost for host-side execution.
 """
 
 from __future__ import annotations
 
 import io
+import os
 
 import paramiko
+
+_VAULT_ADDR = os.environ.get("VAULT_ADDR", "http://localhost:8200")
+_VAULT_TOKEN = os.environ.get("VAULT_TOKEN", "root")
+_MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
+_SFTP_HOST = os.environ.get("SFTP_HOST", "localhost")
+_SFTP_PORT = int(os.environ.get("SFTP_PORT", "2222"))
+_SFTP_USER = os.environ.get("SFTP_USER", "vendor")
+_SFTP_PASSWORD = os.environ.get("SFTP_PASSWORD", "vendorpass")
 
 
 def test_vault_adapter_live():
@@ -26,7 +35,7 @@ def test_vault_adapter_live():
 
     from app.infra.vault import VaultAdapter
 
-    va = VaultAdapter(url="http://localhost:8200", token="root")
+    va = VaultAdapter(url=_VAULT_ADDR, token=_VAULT_TOKEN)
 
     paths = {
         "jwt": ["secret"],
@@ -73,7 +82,7 @@ def test_minio_adapter_live():
 
     from app.infra.minio import MinIOAdapter, MinIOFileNotFoundError
 
-    ma = MinIOAdapter(endpoint="localhost:9000")
+    ma = MinIOAdapter(endpoint=_MINIO_ENDPOINT)
 
     # Bucket bootstrap (idempotent)
     ma.ensure_buckets_exist()
@@ -118,8 +127,8 @@ def test_sftp_adapter_live():
     from app.infra.sftp import SFTPAdapter
 
     # Drop a test file into the SFTP folder using raw paramiko
-    transport = paramiko.Transport(("localhost", 2222))
-    transport.connect(username="vendor", password="vendorpass")
+    transport = paramiko.Transport((_SFTP_HOST, _SFTP_PORT))
+    transport.connect(username=_SFTP_USER, password=_SFTP_PASSWORD)
     sftp_put = paramiko.SFTPClient.from_transport(transport)
     test_content = b"THIS IS A TEST TIFF FILE CONTENT"
     sftp_put.putfo(io.BytesIO(test_content), "drop/live_test.tiff")
@@ -129,7 +138,7 @@ def test_sftp_adapter_live():
 
     # Test our adapter. Atmoz SFTP chroots users to their home,
     # so paths are relative to /home/vendor.
-    with SFTPAdapter("localhost", 2222, "vendor", "vendorpass") as sftp:
+    with SFTPAdapter(_SFTP_HOST, _SFTP_PORT, _SFTP_USER, _SFTP_PASSWORD) as sftp:
         # list_files
         files = sftp.list_files("drop")
         assert len(files) >= 1, f"Expected at least 1 file, got {len(files)}"
@@ -137,13 +146,17 @@ def test_sftp_adapter_live():
         for f in files:
             print(f"    -> {f.filename}: {f.size_bytes} bytes, {f.modified_at}")
 
+        # Use the test file specifically (not files[0] which may be another file)
+        test_files = [f for f in files if f.filename == "live_test.tiff"]
+        assert len(test_files) == 1, f"Expected test file, found: {[f.filename for f in files]}"
+
         # get_file_metadata
-        meta = sftp.get_file_metadata(files[0].remote_path)
+        meta = sftp.get_file_metadata(test_files[0].remote_path)
         assert meta.size_bytes > 0, f"Expected positive size, got {meta.size_bytes}"
         print(f"  get_file_metadata: PASS (size={meta.size_bytes})")
 
         # read_file_content
-        content = sftp.read_file_content(files[0].remote_path)
+        content = sftp.read_file_content(test_files[0].remote_path)
         assert isinstance(content, bytes)
         assert len(content) == len(test_content)
         print(f"  read_file_content: PASS ({len(content)} bytes)")
@@ -153,7 +166,7 @@ def test_sftp_adapter_live():
         print("  Content match: PASS")
 
         # open_file (streaming)
-        fh = sftp.open_file(files[0].remote_path)
+        fh = sftp.open_file(test_files[0].remote_path)
         streamed = fh.read()
         fh.close()
         assert streamed == test_content

@@ -73,6 +73,11 @@ services:
     volumes:
       - ./sftp_drop:/home/vendor/drop
     command: vendor:${SFTP_PASSWORD:-vendorpass}:1000:1000:drop
+    healthcheck:
+      test: ["CMD", "pgrep", "sshd"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - classifier-net
 
@@ -119,6 +124,19 @@ services:
     networks:
       - classifier-net
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_PROXY_TARGET: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - classifier-net
+
   ingestion-worker:
     build:
       context: ./backend
@@ -133,6 +151,8 @@ services:
       minio:
         condition: service_healthy
       vault:
+        condition: service_healthy
+      sftp:
         condition: service_healthy
     restart: unless-stopped
     volumes:
