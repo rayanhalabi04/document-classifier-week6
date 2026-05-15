@@ -64,7 +64,6 @@ class RoleManagementService:
         self._validate_role(role)
 
         if self._roles.has_active_role(target_user_id, role):
-            casbin_enforcer.assign_role(str(target_user_id), role)
             logger.info(
                 "assign_role no-op: user %s already has role '%s'",
                 target_user_id,
@@ -80,7 +79,6 @@ class RoleManagementService:
             assigned_at=datetime.now(timezone.utc),
         )
         self._roles.create(assignment)
-        casbin_enforcer.assign_role(str(target_user_id), role)
 
         self._audit.record(
             action="role.assigned",
@@ -93,6 +91,9 @@ class RoleManagementService:
         )
 
         self._session.commit()
+
+        # Sync Casbin AFTER commit so a rollback doesn't desync it
+        casbin_enforcer.assign_role(str(target_user_id), role)
 
         try:
             invalidate_user_roles(target_user_id)
@@ -129,7 +130,6 @@ class RoleManagementService:
             )
 
         self._roles.revoke(target.id)
-        casbin_enforcer.remove_role(str(target_user_id), role)
 
         self._audit.record(
             action="role.revoked",
@@ -142,6 +142,9 @@ class RoleManagementService:
         )
 
         self._session.commit()
+
+        # Sync Casbin AFTER commit so a rollback doesn't desync it
+        casbin_enforcer.remove_role(str(target_user_id), role)
 
         try:
             invalidate_user_roles(target_user_id)
@@ -181,7 +184,6 @@ class RoleManagementService:
             self._validate_role(role)
 
         self._roles.revoke_all_for_user(target_user_id)
-        casbin_enforcer.remove_roles_for_user(str(target_user_id))
 
         assignments = []
         for role in new_roles:
@@ -193,7 +195,6 @@ class RoleManagementService:
                 assigned_at=datetime.now(timezone.utc),
             )
             self._roles.create(assignment)
-            casbin_enforcer.assign_role(str(target_user_id), role)
             assignments.append(assignment)
 
         self._audit.record(
@@ -207,6 +208,11 @@ class RoleManagementService:
         )
 
         self._session.commit()
+
+        # Sync Casbin AFTER commit so a rollback doesn't desync it
+        casbin_enforcer.remove_roles_for_user(str(target_user_id))
+        for role in new_roles:
+            casbin_enforcer.assign_role(str(target_user_id), role)
 
         try:
             invalidate_user_roles(target_user_id)
