@@ -40,6 +40,13 @@ class Settings(BaseSettings):
     # ── Ingestion Worker ──────────────────────────────────────
     ingestion_poll_interval: int = 5
     ingestion_stability_interval: int = 3
+    max_ingestion_file_bytes: int = 100 * 1024 * 1024  # 100 MB
+
+    # ── Timeouts (seconds) ────────────────────────────────────
+    http_connect_timeout: int = 5
+    http_read_timeout: int = 10
+    pg_connect_timeout: int = 10
+    pg_statement_timeout_ms: int = 30000
 
     # ── Logging ───────────────────────────────────────────────
     log_level: str = "INFO"

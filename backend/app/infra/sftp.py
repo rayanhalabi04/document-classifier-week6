@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import socket
 from dataclasses import dataclass
 from datetime import datetime
 from typing import BinaryIO
 
 import paramiko
+
+from app.config import settings
 
 
 class SFTPError(Exception):
@@ -81,7 +84,11 @@ class SFTPAdapter:
             SFTPConnectionError: On authentication or transport failure.
         """
         try:
-            self._transport = paramiko.Transport((self._host, self._port))
+            sock = socket.create_connection(
+                (self._host, self._port),
+                timeout=settings.http_connect_timeout,
+            )
+            self._transport = paramiko.Transport(sock)
         except Exception as exc:
             raise SFTPConnectionError(
                 f"Failed to connect to {self._host}:{self._port}: {exc}"

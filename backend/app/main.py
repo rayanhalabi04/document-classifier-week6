@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import time
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fastapi_cache import FastAPICache
 
@@ -11,6 +12,7 @@ from app.db.session import SessionFactory, engine
 from app.infra.cache import init_cache
 from app.infra.logging import get_logger
 from app.infra.authz.casbin_enforcer import spawn_policy_listener
+from app.infra.rate_limiter import auth_rate_limit_middleware
 from app.services.auth import load_jwt_secret
 from app.services.startup_authorization import validate_authorization_startup
 from app.services.startup_validation import run_api_readiness_checks
@@ -68,6 +70,29 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # ── Rate limiting ────────────────────────────────────────
+    app.middleware("http")(auth_rate_limit_middleware)
+
+    # ── Security headers ──────────────────────────────────────
+    @app.middleware("http")
+    async def add_security_headers(request: Request, call_next: Callable) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+        return response
+
+    # ── CORS ──────────────────────────────────────────────────
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # ── Request logging ───────────────────────────────────────
     @app.middleware("http")
     async def log_requests(request: Request, call_next: Callable) -> Response:
         start = time.monotonic()

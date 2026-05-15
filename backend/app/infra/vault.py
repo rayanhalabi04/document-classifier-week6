@@ -64,7 +64,11 @@ class VaultAdapter:
             )
 
         try:
-            self._client = hvac.Client(url=self._url, token=self._token)
+            self._client = hvac.Client(
+                url=self._url,
+                token=self._token,
+                timeout=settings.http_read_timeout,
+            )
         except Exception as exc:
             raise VaultConnectionError(
                 f"Failed to create Vault client for {self._url}: {exc}"

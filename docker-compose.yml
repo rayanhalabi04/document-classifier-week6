@@ -19,6 +19,7 @@ services:
 
   redis:
     image: redis:7
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     healthcheck:
@@ -101,7 +102,10 @@ services:
   api:
     build:
       context: ./backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: >
+      bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    environment:
+      LOG_FORMAT: json
     env_file:
       - backend/.env
     ports:
@@ -141,6 +145,8 @@ services:
     build:
       context: ./backend
     command: python -m app.workers.ingestion_worker
+    environment:
+      LOG_FORMAT: json
     env_file:
       - backend/.env
     depends_on:
@@ -155,6 +161,11 @@ services:
       sftp:
         condition: service_healthy
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - ./sftp_drop:/home/vendor/drop:ro
     networks:
@@ -164,6 +175,8 @@ services:
     build:
       context: ./backend
     command: python -m app.workers.inference_worker
+    environment:
+      LOG_FORMAT: json
     env_file:
       - backend/.env
     depends_on:
@@ -176,6 +189,11 @@ services:
       vault:
         condition: service_healthy
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - ./backend/app/classifier/models/classifier.pt:/app/app/classifier/models/classifier.pt:ro
       - ./backend/app/classifier/models/model_card.json:/app/app/classifier/models/model_card.json:ro

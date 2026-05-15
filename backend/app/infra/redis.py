@@ -29,7 +29,12 @@ def get_redis_client() -> Redis:
     Uses binary mode (decode_responses=False) so RQ can store
     pickle-serialised job payloads without corruption.
     """
-    return Redis.from_url(_get_redis_url(), decode_responses=False)
+    return Redis.from_url(
+        _get_redis_url(),
+        decode_responses=False,
+        socket_connect_timeout=settings.http_connect_timeout,
+        socket_timeout=settings.http_read_timeout,
+    )
 
 
 @lru_cache(maxsize=1)
@@ -39,7 +44,12 @@ def get_async_redis_client() -> aioredis.Redis:
     Uses string mode (decode_responses=True) as required by
     fastapi-cache2 RedisBackend.
     """
-    return aioredis.Redis.from_url(_get_redis_url(), decode_responses=True)
+    return aioredis.Redis.from_url(
+        _get_redis_url(),
+        decode_responses=True,
+        socket_connect_timeout=settings.http_connect_timeout,
+        socket_timeout=settings.http_read_timeout,
+    )
 
 
 def check_redis_health() -> None:

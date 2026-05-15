@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from io import BytesIO
 
+import urllib3
 from minio import Minio, S3Error
 from minio.commonconfig import CopySource
 
@@ -65,11 +66,18 @@ class MinIOAdapter:
         self._secure = secure
 
         try:
+            http_client = urllib3.PoolManager(
+                timeout=urllib3.Timeout(
+                    connect=settings.http_connect_timeout,
+                    read=settings.http_read_timeout,
+                )
+            )
             self._client = Minio(
                 endpoint=self._endpoint,
                 access_key=self._access_key,
                 secret_key=self._secret_key,
                 secure=self._secure,
+                http_client=http_client,
             )
         except Exception as exc:
             raise MinIOConnectionError(

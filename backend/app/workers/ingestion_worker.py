@@ -175,6 +175,15 @@ def _process_file(
     - Duplicate source+checksum → skipped, no duplicate active prediction.
     - Storage failures → retried on next poll if visible.
     """
+    if file_info.size_bytes > settings.max_ingestion_file_bytes:
+        logger.warning(
+            "File exceeds max size: %s (%d bytes > %d limit) — skipped",
+            file_info.filename,
+            file_info.size_bytes,
+            settings.max_ingestion_file_bytes,
+        )
+        return
+
     try:
         file_data = sftp.read_file_content(file_info.remote_path)
     except Exception as exc:
