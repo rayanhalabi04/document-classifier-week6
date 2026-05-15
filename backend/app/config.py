@@ -36,6 +36,7 @@ class Settings(BaseSettings):
 
     # ── JWT ───────────────────────────────────────────────────
     jwt_secret: str = "change-me-in-production"
+    jwt_lifetime_seconds: int = 3600  # 1 hour
 
     # ── Ingestion Worker ──────────────────────────────────────
     ingestion_poll_interval: int = 5

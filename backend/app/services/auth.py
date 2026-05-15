@@ -26,8 +26,9 @@ from app.db.models import User
 from app.infra.db import get_session
 from app.infra.vault import VaultAdapter
 from app.repositories.users import UserRepository
+from app.config import settings
 
-JWT_LIFETIME_SECONDS = 60 * 60
+JWT_LIFETIME_SECONDS = settings.jwt_lifetime_seconds
 _jwt_secret: str | None = None
 
 
