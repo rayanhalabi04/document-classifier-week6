@@ -23,8 +23,8 @@ from sqlalchemy.orm import Session
 
 from app.db.models import User
 from app.infra.db import get_session
-from app.infra.vault import VaultAdapter
 from app.repositories.users import UserRepository
+from app.config import settings
 
 JWT_LIFETIME_SECONDS = 60 * 60
 _jwt_secret: str | None = None
@@ -108,9 +108,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 
 
 def load_jwt_secret() -> str:
-    """Resolve and cache the JWT signing secret from Vault."""
+    """Resolve and cache the JWT signing secret from settings."""
     global _jwt_secret
-    _jwt_secret = VaultAdapter().read_secret("jwt", "secret")
+    _jwt_secret = settings.jwt_secret
     return _jwt_secret
 
 

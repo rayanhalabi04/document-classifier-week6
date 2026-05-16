@@ -4,15 +4,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api import audit, auth, batches, health, predictions, roles, users
+from app.config import apply_vault_secrets
 from app.db.session import SessionFactory
 from app.infra.cache import init_cache
-from app.services.auth import load_jwt_secret
+from app.services.auth import get_jwt_secret
 from app.services.startup_authorization import validate_authorization_startup
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    load_jwt_secret()
+    apply_vault_secrets()
     with SessionFactory() as session:
         validate_authorization_startup(session)
     await init_cache()

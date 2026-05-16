@@ -162,6 +162,10 @@ def main() -> None:
             logger.error("Startup check failed: %s", msg)
         sys.exit(1)
 
+    from app.config import apply_vault_secrets
+
+    apply_vault_secrets()
+
     logger.info("All startup checks passed. Connecting to RQ...")
 
     from rq import Queue, Worker
