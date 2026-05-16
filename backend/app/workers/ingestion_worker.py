@@ -230,6 +230,10 @@ def main() -> None:
     configure_logging()
     logger.info("Ingestion worker starting ...")
 
+    from app.config import apply_vault_secrets
+
+    apply_vault_secrets()
+
     if not _run_startup_checks():
         sys.exit(1)
 

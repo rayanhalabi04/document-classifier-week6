@@ -29,6 +29,7 @@ class TestInferenceWorkerStartup:
                 "app.workers.inference_worker.run_inference_worker_checks",
                 return_value=[],
             ),
+            patch("app.config.apply_vault_secrets"),
             patch("app.infra.redis.get_redis_client"),
             patch("rq.Worker") as mock_worker_cls,
             patch("rq.Queue") as mock_queue_cls,
